@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <script type="text/javascript" src="d3/d3.js"></script>
+        <style type="text/css">
+			div.bar {
+				display: inline-block;
+				width: 20px;
+				height: 75px;	/* Gets overriden by D3-assigned height below */
+				margin-right: 2px;
+				background-color: teal;
+			}
+		</style>
+    </head>
+    <body>
+        <script type="text/javascript">
+    
+			var neighbors= [
+                {
+                    "team": "Celtics",
+                    "season": "\'03-\'04",
+                    "distance": 0.5,
+                    "wins": 2
+                },
+                {
+                    "team": "Hornets",
+                    "season": "\'03-\'04",
+                    "distance": 0.23,
+                    "wins": 4
+                },
+                {
+                    "team": "76ers",
+                    "season": "\'03-\'04",
+                    "distance": 2.2,
+                    "wins": 1
+                },
+                {
+                    "team": "Jazz",
+                    "season": "\'03-\'04",
+                    "distance": 1.1,
+                    "wins": 3
+                },
+                {
+                    "team": "Suns",
+                    "season": "\'03-\'04",
+                    "distance": 0.81,
+                    "wins": 0
+                }];
+			
+            //Width and height
+            var w= 1000;
+            var h= 1000;
+            var colors= ["red","yellow","green","blue","purple"]
+            var mainR= w/16 //radius of main circle
+            
+			//Create SVG element
+			var svg= d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+                
+			svg.selectAll("circle")
+				.data(neighbors)
+				.enter()
+				.append("circle")
+				.attr("cx", function(d,i) {
+						return w/2 + (mainR + d.distance*100)*Math.cos(2*i*Math.PI/neighbors.length);
+					})
+				.attr("cy", function(d,i) {
+						return h/2 - (mainR + d.distance*100)*Math.sin(2*i*Math.PI/neighbors.length);
+					})
+				.attr("r", function(d) {
+						return d.wins*10+10;
+					})
+				.attr("fill", function(d,i) {
+                        return colors[i];
+                    });
+            
+            //Create main circle
+            svg.append("circle")
+                .attr("cx",w/2)
+                .attr("cy",h/2)
+                .attr("r",mainR);
+        </script>
+    </body>
+</html>
