@@ -3,7 +3,6 @@
     <head>
         <meta charset="utf-8">
         <title>D3 Test</title>
-		<script type="text/javascript" src="neighbors.json"></script>
         <script type="text/javascript" src="d3/d3.js"></script>
         <style type="text/css">
 			div.bar {
@@ -22,14 +21,21 @@
             var w= 1000;
             var h= 1000;
             var mainR= w/16 //radius of main circle
-            var distScale= 200
+            var distScale= 100
+			var zoomRad= w/8;
 			
 			//Create SVG element
 			var svg= d3.select("body")
 						.append("svg")
 						.attr("width", w)
 						.attr("height", h);
-						
+			
+			d3.selection.prototype.moveToFront = function() {
+				return this.each(function(){
+				  this.parentNode.appendChild(this);
+				});
+			  };
+			  
 			function getDistBounds(arr) {
 				max= -Number.MAX_VALUE;
 				min= Number.MAX_VALUE;
@@ -43,7 +49,36 @@
 				}
 				return [max,min];
 			}
-            
+			
+            function resize(svg,circ) {
+				//Zoom
+				if (circ.attr("r") != zoomRad) {
+					svg.selectAll("circle")
+						.transition().delay(0).duration(500).attr("r", function(d) {
+								return d.wins*10+10;
+							});
+					circ.moveToFront()
+						.transition().delay(0).duration(500).attr("r", zoomRad);
+					/*svg.selectAll("text")
+						.data(circ)
+						.enter()
+						.append("svg:text")
+						.attr("x", 100)
+						.attr("y", 100)
+						//.attr("text-anchor", "middle")
+						.attr("fill","black")
+						.text(function(d) {
+								return d.wins;
+							})
+						.moveToFront();*/
+				}
+				else {
+					circ.transition().delay(0).duration(500).attr("r", function(d) {
+						return d.wins*10+10;
+					});
+				}
+			}
+			
 			//load and display neighbor data
 			d3.json("data.json", function(neighbors) {
 					x= getDistBounds(neighbors);
@@ -65,8 +100,19 @@
 							})
 						.attr("fill", function(d,i) {
 								return (d.name in colors) ? colors[d.name] : "#000000";
+							})
+						.on("mouseover",function() {
+								color= d3.select(this).attr("fill");
+								d3.select(this).attr("stroke",d3.rgb(color).darker(1.5));
+								d3.select(this).attr("stroke-width","5");
+							})
+						.on("mouseout",function() {
+								d3.select(this).attr("stroke-width","0");
+							})
+						.on("click", function() {
+								resize(svg,d3.select(this));
 							});
-				}); 
+				});
             
             //Create main circle
             svg.append("ellipse")
