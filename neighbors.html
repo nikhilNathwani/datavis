@@ -50,32 +50,32 @@
 				return [max,min];
 			}
 			
-            function resize(svg,circ) {
+			function teamText(data) {
+				return data.name + " " + data.year
+			}
+			
+            function resize(group) {
+				circ= group.select("circle");
+				txt= group.select("text")
 				//Zoom
 				if (circ.attr("r") != zoomRad) {
-					svg.selectAll("circle")
+					gs= svg.selectAll("g")
+					gs.selectAll("circle")
 						.transition().delay(0).duration(500).attr("r", function(d) {
 								return d.wins*10+10;
 							});
-					circ.moveToFront()
-						.transition().delay(0).duration(500).attr("r", zoomRad);
-					/*svg.selectAll("text")
-						.data(circ)
-						.enter()
-						.append("svg:text")
-						.attr("x", 100)
-						.attr("y", 100)
-						//.attr("text-anchor", "middle")
-						.attr("fill","black")
-						.text(function(d) {
-								return d.wins;
-							})
-						.moveToFront();*/
+					gs.selectAll("text")
+						.transition().delay(0).duration(500).attr("visibility","hidden");
+						
+					group.moveToFront()
+					circ.transition().delay(0).duration(500).attr("r", zoomRad);
+					txt.transition().delay(200).duration(500).attr("visibility","visible");
 				}
 				else {
 					circ.transition().delay(0).duration(500).attr("r", function(d) {
 						return d.wins*10+10;
 					});
+					txt.transition().delay(200).duration(500).attr("visibility","hidden");
 				}
 			}
 			
@@ -85,35 +85,56 @@
 					max= x[0];
 					min= x[1];
 					diff= max-min;
-					svg.selectAll("circle")
-						.data(neighbors)
-						.enter()
-						.append("circle")
-						.attr("cx", function(d,i) {
-								return w/2 + (mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
-							})
-						.attr("cy", function(d,i) {
-								return h/2 - (mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
-							})
-						.attr("r", function(d) {
-								return d.wins*10+10;
-							})
-						.attr("fill", function(d,i) {
-								return (d.name in colors) ? colors[d.name] : "#000000";
-							})
-						.on("mouseover",function() {
-								color= d3.select(this).attr("fill");
-								d3.select(this).attr("stroke",d3.rgb(color).darker(1.5));
-								d3.select(this).attr("stroke-width","5");
-							})
-						.on("mouseout",function() {
-								d3.select(this).attr("stroke-width","0");
-							})
-						.on("click", function() {
-								resize(svg,d3.select(this));
-							});
-				});
-            
+					var groups= svg.selectAll("g")
+									.data(neighbors)
+									.enter()
+									.append("g");
+			
+					groups.append("circle")
+							.attr("cx", function(d,i) {
+									return w/2 + (mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
+								})
+							.attr("cy", function(d,i) {
+									return h/2 - (mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
+								})
+							.attr("r", function(d) {
+									return d.wins*10+10;
+								})
+							.attr("fill", function(d,i) {
+									return (d.name in colors) ? colors[d.name] : "#000000";
+								})
+							.on("mouseover",function() {
+									color= d3.select(this).attr("fill");
+									d3.select(this).attr("stroke",d3.rgb(color).darker(1.5));
+									d3.select(this).attr("stroke-width","5");
+								})
+							.on("mouseout",function() {
+									d3.select(this).attr("stroke-width","0");
+								})
+							.on("click", function() {
+									resize(d3.select(this.parentNode));
+								});
+							
+					groups.append("text")
+							.attr("x", function(d,i) {
+									return w/2 + (mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
+								})
+							.attr("y", function(d,i) {
+									return h/2 - (mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
+								})
+							.attr("text-anchor", "middle")
+							.attr("dominant-baseline","central")
+							.attr("fill", "white")
+							.attr("visibility","hidden")
+							.text(function(d) { return teamText(d); })
+							.on("click", function() {
+									if(d3.select(this).attr("visibility")=="visible") {
+										resize(d3.select(this.parentNode));
+									}
+								});
+							
+ 					});
+			
             //Create main circle
             svg.append("ellipse")
                 .attr("cx",w/2)
