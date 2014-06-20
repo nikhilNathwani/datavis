@@ -16,13 +16,14 @@
     </head>
     <body>
         <script type="text/javascript">
-			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BKN":"#000000", "CHA":"#F26532", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#EFEFEF", "NJN":"#002258", "NOH":"#0095CA", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAS":"#BEC8C9", "SAC":"#743389", "SEA":"#19542D", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874"}
+			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BKN":"#000000", "CHA":"#F26532", "CHH":"#25799A", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#EFEFEF", "NJN":"#002258", "NOH":"#0095CA", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAS":"#BEC8C9", "SAC":"#743389", "SEA":"#19542D", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874"}
             //Width and height
             var w= 1000;
             var h= 1000;
-            var mainR= w/16 //radius of main circle
-            var distScale= 100
+            var mainR= w/12; //radius of main circle
+            var distScale= 150
 			var zoomRad= w/8;
+			var offset= 15; 
 			
 			//Create SVG element
 			var svg= d3.select("body")
@@ -30,12 +31,14 @@
 						.attr("width", w)
 						.attr("height", h);
 			
+			//move selected object to front of parent's layout
 			d3.selection.prototype.moveToFront = function() {
 				return this.each(function(){
 				  this.parentNode.appendChild(this);
 				});
 			  };
 			  
+			//returns max and min neighbor distance from central circle 
 			function getDistBounds(arr) {
 				max= -Number.MAX_VALUE;
 				min= Number.MAX_VALUE;
@@ -50,28 +53,42 @@
 				return [max,min];
 			}
 			
-			function teamText(data) {
-				return data.name + " " + data.year
+			//return text to display on circle when clicked
+			function teamText(d) {
+				return d.name + " " + d.year + "\nSeries wins: " + d.wins
 			}
 			
+			//zoom or un-zoom informational circle
             function resize(group) {
+				//grab group's circle and text
 				circ= group.select("circle");
 				txt= group.select("text")
-				//Zoom
+				
+				//clicked to zoom circle
 				if (circ.attr("r") != zoomRad) {
 					gs= svg.selectAll("g")
+					
+					//zoom out all zoomed circles 
 					gs.selectAll("circle")
 						.transition().delay(0).duration(500).attr("r", function(d) {
 								return d.wins*10+10;
 							});
+						
+					//hide all visible circle text
 					gs.selectAll("text")
 						.transition().delay(0).duration(500).attr("visibility","hidden");
-						
+					
+					//move this group's circle and text to fronr
 					group.moveToFront()
+					
+					//zoom in circle (i.e. increaase radius) and make its text visible
 					circ.transition().delay(0).duration(500).attr("r", zoomRad);
 					txt.transition().delay(200).duration(500).attr("visibility","visible");
 				}
+				
+				//clicked to un-zoom circle
 				else {
+					//un-zoom circle (i.e. set radius to original length) and re-hide circle's text
 					circ.transition().delay(0).duration(500).attr("r", function(d) {
 						return d.wins*10+10;
 					});
@@ -84,18 +101,51 @@
 					x= getDistBounds(neighbors);
 					max= x[0];
 					min= x[1];
-					diff= max-min;
+					diff= max-min; //used when rescaling neighbor distance
+					
+					//Create main circle
+					svg.append("clipPath")
+						.attr("id","por")
+						.append("ellipse")
+						.attr("cx",w/2)
+						.attr("cy",h/2)
+						.attr("rx",mainR)
+						.attr("ry",mainR)
+					
+					svg.append("image")
+						.attr("x",w/2-179/2)
+						.attr("y",h/2-167/2)
+						.attr("xlink:href","por.jpg")
+						.attr("clip-path","url(#por)")
+						.attr("width",179)
+						.attr("height",167)
+					
+					svg.selectAll("circle")
+						.data(x)
+						.enter()
+						.append("circle")
+						.attr("cx",w/2)
+						.attr("cy",h/2)
+						.attr("r", function(d) {
+									return offset + mainR + ((d-min)/(max-min))*distScale;
+								})
+						.attr("fill","white")
+						.attr("fill-opacity",0.0)
+						.attr("stroke","#777777");
+				
+					//can't add text directly to circles, need to pair them up within an SVG "group"
 					var groups= svg.selectAll("g")
 									.data(neighbors)
 									.enter()
 									.append("g");
-			
+						
+					//add circle to each group, set properties and event handlers
 					groups.append("circle")
 							.attr("cx", function(d,i) {
-									return w/2 + (mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
+									return w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
 								})
 							.attr("cy", function(d,i) {
-									return h/2 - (mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
+									return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
 								})
 							.attr("r", function(d) {
 									return d.wins*10+10;
@@ -103,6 +153,7 @@
 							.attr("fill", function(d,i) {
 									return (d.name in colors) ? colors[d.name] : "#000000";
 								})
+							.moveToFront()
 							.on("mouseover",function() {
 									color= d3.select(this).attr("fill");
 									d3.select(this).attr("stroke",d3.rgb(color).darker(1.5));
@@ -115,12 +166,13 @@
 									resize(d3.select(this.parentNode));
 								});
 							
+					//add text to each group, set properties and event handler
 					groups.append("text")
 							.attr("x", function(d,i) {
-									return w/2 + (mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
+									return w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
 								})
 							.attr("y", function(d,i) {
-									return h/2 - (mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
+									return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
 								})
 							.attr("text-anchor", "middle")
 							.attr("dominant-baseline","central")
@@ -132,15 +184,9 @@
 										resize(d3.select(this.parentNode));
 									}
 								});
-							
+				
  					});
-			
-            //Create main circle
-            svg.append("ellipse")
-                .attr("cx",w/2)
-                .attr("cy",h/2)
-                .attr("rx",mainR)
-				.attr("ry",mainR);
+				
         </script>
     </body>
 </html>
