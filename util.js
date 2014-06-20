@@ -50,7 +50,8 @@ function resize(group) {
         
         //zoom in circle (i.e. increaase radius) and make its text visible
         circ.transition().delay(0).duration(500).attr("r", zoomRad);
-        txt.transition().delay(200).duration(500).attr("visibility","visible");
+        txt.transition().delay(220).duration(500).attr("visibility","visible");
+        txt.moveToFront()
     }
     
     //clicked to un-zoom circle

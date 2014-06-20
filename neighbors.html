@@ -21,7 +21,7 @@
 			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BRK":"#000000", "CHA":"#F26532", "CHH":"#25799A", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#EFEFEF", "NJN":"#002258", "NOH":"#0095CA", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAS":"#BEC8C9", "SAC":"#743389", "SEA":"#19542D", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874"}
             //Width and height
             var w= 70*16+10;
-            var h= 1000;
+            var h= 900;
             var mainR= w/12; //radius of main circle
             var distScale= 150
 			var zoomRad= w/8;
@@ -44,9 +44,10 @@
 				
 			
 				//set properties and event handlers of each circle in orbit
-				svg.selectAll("g")
-					.data(neighbors)
-					.select("circle")
+				orbit= svg.selectAll("g")
+						.data(neighbors)
+					
+				orbit.select("circle")
 					.attr("cx", function(d,i) {
 							return w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
 						})
@@ -73,9 +74,7 @@
 						});
 					
 				//add text to each group, set properties and event handler
-				svg.selectAll("g")
-					.data(neighbors)
-					.select("text")
+				orbit.select("text")
 					.attr("x", function(d,i) {
 							return w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
 						})
@@ -98,7 +97,9 @@
 			d3.json("data.json", function(teamAndNeighs) {
 					
 				//draw concentric axes
-				/*svg.selectAll("ellipse")
+				/*svg.append("g")
+					.attr("class", "axes")
+					.selectAll("ellipse")
 					.data(x)
 					.enter()
 					.append("ellipse")
