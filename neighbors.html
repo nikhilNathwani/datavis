@@ -33,66 +33,6 @@
 						.attr("width", w)
 						.attr("height", h);
 						
-			function setTeamOrbit(dat) {
-				var name= dat.team;
-				var neighbors= dat.neighbors;
-				
-				x= getDistBounds(neighbors);
-				max= x[0];
-				min= x[1];
-				diff= max-min; //used when rescaling neighbor distance
-				
-			
-				//set properties and event handlers of each circle in orbit
-				orbit= svg.selectAll("g")
-						.data(neighbors)
-					
-				orbit.select("circle")
-					.attr("cx", function(d,i) {
-							return w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
-						})
-					.attr("cy", function(d,i) {
-							return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
-						})
-					.attr("r", function(d) {
-							return d.wins*10+10;
-						})
-					.attr("fill", function(d,i) {
-							return (d.name in colors) ? colors[d.name] : "#000000";
-						})
-					.moveToFront()
-					.on("mouseover",function() {
-							color= d3.select(this).attr("fill");
-							d3.select(this).attr("stroke",d3.rgb(color).darker(1.5));
-							d3.select(this).attr("stroke-width","5");
-						})
-					.on("mouseout",function() {
-							d3.select(this).attr("stroke-width","0");
-						})
-					.on("click", function() {
-							resize(d3.select(this.parentNode));
-						});
-					
-				//add text to each group, set properties and event handler
-				orbit.select("text")
-					.attr("x", function(d,i) {
-							return w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
-						})
-					.attr("y", function(d,i) {
-							return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
-						})
-					.attr("text-anchor", "middle")
-					.attr("dominant-baseline","central")
-					.attr("fill", "white")
-					.attr("visibility","hidden")
-					.text(function(d) { return teamText(d); })
-					.on("click", function() {
-							if(d3.select(this).attr("visibility")=="visible") {
-								resize(d3.select(this.parentNode));
-							}
-						});		
-						
-			}
 			//load and display neighbor data
 			d3.json("data.json", function(teamAndNeighs) {
 					
@@ -116,7 +56,11 @@
 					.attr("stroke","#777777");*/			
 					
 				//Create main circle
-				svg.append("clipPath")
+				sun= svg.append("g")
+						.attr("class","sun")
+						
+				sun.append("clipPath")
+						.attr("class","toggle")
 						.attr("id","por")
 						.append("ellipse")
 						.attr("cx",w/2)
@@ -124,26 +68,30 @@
 						.attr("rx",mainR)
 						.attr("ry",mainR);
 				
-				svg.append("image")
+				sun.append("image")
+						.attr("class","toggle")
 						.attr("x",w/2-179/2)
 						.attr("y",h/2-167/2)
 						.attr("xlink:href","por.jpg")
 						.attr("clip-path","url(#por)")
 						.attr("width",179)
 						.attr("height",167);
-					
+				
+				//create group for top row
+				toggle= svg.append("g")
+							.attr("class","toggle")
+				
 				//team circles on top row of page
-				svg.selectAll("circle")
+				toggle.selectAll("circle")
 					.data(teamAndNeighs)
 					.enter()
 					.append("circle")
+					.attr("class","toggle")
 					.attr("cx", function(d,i) {
 								return 40 + 70*i;
 							})
 					.attr("cy", 80)
-					.attr("r", function(d) {
-								return 30;
-							})
+					.attr("r", 30)
 					.attr("fill", function(d) {
 								return (d.team in colors) ? colors[d.team] : "#000000";
 							})
@@ -159,13 +107,31 @@
 					.on("click", function(d) {
 									setTeamOrbit(d);
 								});
+				toggle.selectAll("text")
+					.data(teamAndNeighs)
+					.enter()
+					.append("text")
+					.attr("class","toggle")
+					.attr("x", function(d,i) {
+								return 40 + 70*i;
+							})
+					.attr("y", 80)
+					.attr("text-anchor", "middle")
+					.attr("dominant-baseline","central")
+					.attr("fill", "white")
+					.text(function(d) { return d.team; })
+					.on("click", function(d) {
+									setTeamOrbit(d);
+								});		
 									
 				//create groups for neighbor circles (planets)
 				for (i = 0; i < 16; i++) {
 					var orbit= svg.append("g")
 						.attr("class","orbit");
-					orbit.append("circle");
-					orbit.append("text");
+					orbit.append("circle")
+						.attr("class","orbit");
+					orbit.append("text")
+						.attr("class","orbit");
 				}
 			});
         </script>
