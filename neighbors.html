@@ -58,13 +58,12 @@
 				
 				
 				//create top row of 2014 playoff teams
-				toggle= svg.selectAll("g.toggle")
+				toggle= svg.selectAll("g.toggle") //Add groups for each toggle button
 							.data(teamAndNeighs)
 							.enter()
 							.append("g")
 							.attr("class","toggle");
-				
-				toggle.append("circle")
+				toggle.append("circle") //Add circle to each group
 					.attr("class","toggle")
 					.attr("cx", function(d,i) {
 								return 40 + 70*i;
@@ -73,9 +72,8 @@
 					.attr("r", 30)
 					.attr("fill", function(d) {
 								return (d.team in colors) ? colors[d.team] : "#000000";
-							});
-					
-				toggle.append("text")
+							});	
+				toggle.append("text") //Add text to each group
 					.attr("class","toggle")
 					.attr("x", function(d,i) {
 								return 40 + 70*i;
@@ -84,9 +82,8 @@
 					.attr("text-anchor", "middle")
 					.attr("dominant-baseline","central")
 					.attr("fill", "white")
-					.text(function(d) { return d.team; });
-				
-				toggle.on("mouseover",function() {
+					.text(function(d) { return d.team; });	
+				toggle.on("mouseover",function() { //Add event handler to each GROUP (not each individual circle/text!)
 									color= d3.select(this).select("circle").attr("fill");
 									d3.select(this).select("circle").attr("stroke",d3.rgb(color).darker(1));
 									d3.select(this).select("circle").attr("stroke-width","5");
@@ -97,16 +94,16 @@
 						.on("click", function(d) {
 										toggleOrbit(d);
 									});
-									
+												
 				//create groups for neighbor circles (planets)
-				for (i = 0; i < 16; i++) {
+				/*for (i = 0; i < 16; i++) {
 					var orbit= svg.append("g")
 						.attr("class","orbit");
 					orbit.append("circle")
 						.attr("class","orbit");
 					orbit.append("svg")
 						.attr("class","text");
-				}
+				}*/
 			});
         </script>
     </body>

@@ -31,7 +31,7 @@ function resize(group) {
     //grab group's circle and text
     circ= group.select("circle.orbit");
     txt= group.select("svg.text")
-    
+        
     //clicked to zoom circle
     if (circ.attr("r") != zoomRad) {
         gs= svg.selectAll("g.orbit")
@@ -80,7 +80,7 @@ function toggleOrbit(dat) {
     diff= max-min; //used when rescaling neighbor distance
     
     //draw concentric axes
-    svg.append("g")
+    /*svg.append("g")
         .attr("class", "axes")
         .selectAll("ellipse")
         .data(x)
@@ -98,13 +98,17 @@ function toggleOrbit(dat) {
         .attr("fill","blue")
         //.attr("fill-opacity",0.0)
         .attr("stroke","#777777")
-        .attr("stroke-width",4);
+        .attr("stroke-width",4);*/
     
     //set properties and event handlers of each circle in orbit
     orbit= svg.selectAll("g.orbit")
             .data(neighbors)
+            .enter()
+            .append("g")
+            .attr("class","orbit");
         
-    orbit.select("circle.orbit")
+    orbit.append("circle")
+        .attr("class","orbit")
         .attr("cx", function(d,i) {
                 return w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
             })
@@ -117,21 +121,11 @@ function toggleOrbit(dat) {
         .attr("fill", function(d,i) {
                 return (d.name in colors) ? colors[d.name] : "#000000";
             })
-        .moveToFront()
-        .on("mouseover",function() {
-                color= d3.select(this).attr("fill");
-                d3.select(this).attr("stroke",d3.rgb(color).darker(1.5));
-                d3.select(this).attr("stroke-width","5");
-            })
-        .on("mouseout",function() {
-                d3.select(this).attr("stroke-width","0");
-            })
-        .on("click", function() {
-                resize(d3.select(this.parentNode));
-            });
+        
     
     //add text to each group, set properties and event handler
-    texts= orbit.select("svg.text")
+    texts= orbit.append("svg")
+                .attr("class","text")
                 .attr("x", function(d,i) {
                         return -(d.wins*10+10) + w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
                     })
@@ -143,18 +137,7 @@ function toggleOrbit(dat) {
                     })
 				.attr("height", function(d) {
                         return 200;
-                    })
-                .on("mouseover",function() {
-                        color= d3.select(this).attr("fill");
-                        d3.select(this.parentNode).select("circle.orbit").attr("stroke-width","5");
-                    })
-                .on("mouseout",function() {
-                        d3.select(this.parentNode).select("circle.orbit").attr("stroke-width","0");
-                    })
-                .on("click", function() {
-                        resize(d3.select(this.parentNode));
-                    });
-                
+                    });       
     texts.selectAll("text")
         .data(function(d){
                 return teamText(d);
@@ -170,10 +153,17 @@ function toggleOrbit(dat) {
         .attr("visibility","hidden")
         .moveToFront()
         .text(function(d){return d;})
+        
+    //set event handlers for neighbor orbit groups
+    orbit.on("mouseover",function() {
+                color= d3.select(this).select("circle.orbit").attr("fill");
+                d3.select(this).select("circle.orbit").attr("stroke",d3.rgb(color).darker(1));
+                d3.select(this).select("circle.orbit").attr("stroke-width","5");
+            })
+        .on("mouseout",function() {
+                d3.select(this).select("circle.orbit").attr("stroke-width","0");
+            })
         .on("click", function() {
-                if(d3.select(this).attr("visibility")=="visible") {
-                    resize(d3.select(this.parentNode));
-                }
-            });		
-            
+                resize(d3.select(this));
+            });
 }
