@@ -68,6 +68,7 @@ function resize(group) {
 function toggleOrbit(dat) {
     var name= dat.team;
     var neighbors= dat.neighbors;
+    console.log(name,neighbors);
     
     var circs= svg.select("g.toggle").selectAll("circle");
     circs.attr("stroke-width",function(d){
@@ -134,13 +135,12 @@ function toggleOrbit(dat) {
                     })
 				.attr("height", function(d) {
                         return 200;
-                    });       
+                    });
+                
     texts.selectAll("text")
         .data(function(d){
                 return teamText(d);
             })
-        .enter()
-        .append("text")
         .attr("x", 0)
         .attr("y", function(d,i){
                 return 15*i;

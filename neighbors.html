@@ -97,10 +97,13 @@
 												
 				//create groups for neighbor circles (planets)
 				for (i = 0; i < 16; i++) {
-					var orbit= svg.append("g")
-						.attr("class","orbit");
-					orbit.append("circle");
-					orbit.append("svg");
+					var orbGroup= svg.append("g")
+									.attr("class","orbit");
+					orbGroup.append("circle");
+					txtGroup= orbGroup.append("svg");
+					for (j=0; j<4; j++) {
+						txtGroup.append("text");
+					}
 				}
 			});
         </script>
