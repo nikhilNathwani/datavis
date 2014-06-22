@@ -81,7 +81,6 @@ function toggleOrbit(dat) {
     
 	//set sun image
 	sun.select("image").attr("xlink:href", "pics/"+name+".jpg")
-						.attr("clip-path","url(#sun)");
 	
     //format the axes
     axes.selectAll("ellipse")
