@@ -23,7 +23,7 @@
             var w= 70*16+10;
             var h= 900;
             var mainR= w/12; //radius of main circle
-            var distScale= 150
+            var distScale= 200
 			var zoomRad= w/8;
 			var offset= 15; 
 			
@@ -33,6 +33,16 @@
 						.attr("width", w)
 						.attr("height", h);
 						
+			//create group for concentric axes
+			var axes= svg.append("g")
+						.attr("class", "axes")
+			for (i=0; i<3; i++) {
+				axes.append("ellipse")
+					.attr("class","axes")
+					.attr("cx",w/2)
+					.attr("cy",h/2)
+			}
+		
 			//load and display neighbor data
 			d3.json("data.json", function(teamAndNeighs) {		
 					
@@ -40,21 +50,19 @@
 				sun= svg.append("g")
 						.attr("class","sun")	
 				sun.append("clipPath")
-						.attr("class","toggle")
-						.attr("id","por")
+						.attr("class","sun")
+						.attr("id","sun")
 						.append("ellipse")
 						.attr("cx",w/2)
 						.attr("cy",h/2)
 						.attr("rx",mainR)
 						.attr("ry",mainR);
 				sun.append("image")
-						.attr("class","toggle")
-						.attr("x",w/2-179/2)
-						.attr("y",h/2-167/2)
-						.attr("xlink:href","por.jpg")
-						.attr("clip-path","url(#por)")
-						.attr("width",179)
-						.attr("height",167);
+						.attr("class","sun")
+						.attr("x",w/2-100)
+						.attr("y",h/2-100)
+						.attr("width",200)
+						.attr("height",200);
 				
 				
 				//create top row of 2014 playoff teams

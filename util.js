@@ -22,7 +22,6 @@ function getDistBounds(arr) {
 
 //return text to display on circle when clicked
 function teamText(d) {
-    //console.log([d.name + " " + d.year, d.wins + " series won","Similarities:", d.attrs]);
     return [d.name + " " + d.year, d.wins + " series won","Similarities:", d.attrs];
 }
 
@@ -68,7 +67,6 @@ function resize(group) {
 function toggleOrbit(dat) {
     var name= dat.team;
     var neighbors= dat.neighbors;
-    console.log(name,neighbors);
     
     var circs= svg.select("g.toggle").selectAll("circle");
     circs.attr("stroke-width",function(d){
@@ -79,27 +77,23 @@ function toggleOrbit(dat) {
     max= x[0];
     min= x[1];
     diff= max-min; //used when rescaling neighbor distance
+	x.push((max+min)/2);
     
-    //draw concentric axes
-    /*svg.append("g")
-        .attr("class", "axes")
-        .selectAll("ellipse")
-        .data(x)
-        .enter()
-        .append("ellipse")
-        .attr("class","axes")
-        .attr("cx",w/2)
-        .attr("cy",h/2)
-        .attr("r", function(d) {
+	//set sun image
+	sun.select("image").attr("xlink:href", "pics/"+name+".jpg")
+						.attr("clip-path","url(#sun)");
+	
+    //format the axes
+    axes.selectAll("ellipse")
+		.data(x)
+        .attr("rx", function(d) {
                     return offset + mainR + ((d-min)/(max-min))*distScale;
                 })
-        .attr("r", function(d) {
+        .attr("ry", function(d) {
                     return offset + mainR + ((d-min)/(max-min))*distScale;
                 })
-        .attr("fill","blue")
-        //.attr("fill-opacity",0.0)
-        .attr("stroke","#777777")
-        .attr("stroke-width",4);*/
+        .attr("fill-opacity",0.0)
+        .attr("stroke","#999999");
     
     //set properties and event handlers of each circle in orbit
     orbit= svg.selectAll("g.orbit")
