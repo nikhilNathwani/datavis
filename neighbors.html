@@ -38,8 +38,7 @@
 					
 				//Create main circle
 				sun= svg.append("g")
-						.attr("class","sun")
-						
+						.attr("class","sun")	
 				sun.append("clipPath")
 						.attr("class","toggle")
 						.attr("id","por")
@@ -48,7 +47,6 @@
 						.attr("cy",h/2)
 						.attr("rx",mainR)
 						.attr("ry",mainR);
-				
 				sun.append("image")
 						.attr("class","toggle")
 						.attr("x",w/2-179/2)
@@ -58,15 +56,15 @@
 						.attr("width",179)
 						.attr("height",167);
 				
-				//create group for top row
-				toggle= svg.append("g")
-							.attr("class","toggle")
 				
-				//team circles on top row of page
-				toggle.selectAll("circle")
-					.data(teamAndNeighs)
-					.enter()
-					.append("circle")
+				//create top row of 2014 playoff teams
+				toggle= svg.selectAll("g.toggle")
+							.data(teamAndNeighs)
+							.enter()
+							.append("g")
+							.attr("class","toggle");
+				
+				toggle.append("circle")
 					.attr("class","toggle")
 					.attr("cx", function(d,i) {
 								return 40 + 70*i;
@@ -75,23 +73,9 @@
 					.attr("r", 30)
 					.attr("fill", function(d) {
 								return (d.team in colors) ? colors[d.team] : "#000000";
-							})
-					.attr("visibility","visible")
-					.on("mouseover",function() {
-									color= d3.select(this).attr("fill");
-									d3.select(this).attr("stroke",d3.rgb(color).darker(1));
-									d3.select(this).attr("stroke-width","5");
-								})
-					.on("mouseout",function() {
-									d3.select(this).attr("stroke-width","0");
-								})
-					.on("click", function(d) {
-									toggleOrbit(d);
-								});
-				toggle.selectAll("text")
-					.data(teamAndNeighs)
-					.enter()
-					.append("text")
+							});
+					
+				toggle.append("text")
 					.attr("class","toggle")
 					.attr("x", function(d,i) {
 								return 40 + 70*i;
@@ -100,22 +84,19 @@
 					.attr("text-anchor", "middle")
 					.attr("dominant-baseline","central")
 					.attr("fill", "white")
-					.text(function(d) { return d.team; })
-					.on("mouseover",function() {
-									console.log("HERE!!!!!");
-									c= d3.select(this.parent);//.select("circle");
-									//alert(c);
-									color= c.attr("fill");
-									c.attr("stroke",d3.rgb(color).darker(1));
-									c.attr("stroke-width","5");
+					.text(function(d) { return d.team; });
+				
+				toggle.on("mouseover",function() {
+									color= d3.select(this).select("circle").attr("fill");
+									d3.select(this).select("circle").attr("stroke",d3.rgb(color).darker(1));
+									d3.select(this).select("circle").attr("stroke-width","5");
 								})
-					.on("mouseout",function() {
-									c= d3.select(this.parent).select("circle");
-									c.attr("stroke-width","0");
-								})
-					.on("click", function(d) {
-									toggleOrbit(d);
-								});		
+						.on("mouseout",function() {
+										d3.select(this).select("circle").attr("stroke-width","0");
+									})
+						.on("click", function(d) {
+										toggleOrbit(d);
+									});
 									
 				//create groups for neighbor circles (planets)
 				for (i = 0; i < 16; i++) {
