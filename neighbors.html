@@ -34,26 +34,7 @@
 						.attr("height", h);
 						
 			//load and display neighbor data
-			d3.json("data.json", function(teamAndNeighs) {
-					
-				//draw concentric axes
-				/*svg.append("g")
-					.attr("class", "axes")
-					.selectAll("ellipse")
-					.data(x)
-					.enter()
-					.append("ellipse")
-					.attr("cx",w/2)
-					.attr("cy",h/2)
-					.attr("r", function(d) {
-								return offset + mainR + ((d-min)/(max-min))*distScale;
-							})
-					.attr("r", function(d) {
-								return offset + mainR + ((d-min)/(max-min))*distScale;
-							})
-					.attr("fill","white")
-					.attr("fill-opacity",0.0)
-					.attr("stroke","#777777");*/			
+			d3.json("data.json", function(teamAndNeighs) {		
 					
 				//Create main circle
 				sun= svg.append("g")
@@ -98,14 +79,14 @@
 					.attr("visibility","visible")
 					.on("mouseover",function() {
 									color= d3.select(this).attr("fill");
-									d3.select(this).attr("stroke",d3.rgb(color).darker(1.5));
+									d3.select(this).attr("stroke",d3.rgb(color).darker(1));
 									d3.select(this).attr("stroke-width","5");
 								})
 					.on("mouseout",function() {
 									d3.select(this).attr("stroke-width","0");
 								})
 					.on("click", function(d) {
-									setTeamOrbit(d);
+									toggleOrbit(d);
 								});
 				toggle.selectAll("text")
 					.data(teamAndNeighs)
@@ -120,8 +101,20 @@
 					.attr("dominant-baseline","central")
 					.attr("fill", "white")
 					.text(function(d) { return d.team; })
+					.on("mouseover",function() {
+									console.log("HERE!!!!!");
+									c= d3.select(this.parent);//.select("circle");
+									//alert(c);
+									color= c.attr("fill");
+									c.attr("stroke",d3.rgb(color).darker(1));
+									c.attr("stroke-width","5");
+								})
+					.on("mouseout",function() {
+									c= d3.select(this.parent).select("circle");
+									c.attr("stroke-width","0");
+								})
 					.on("click", function(d) {
-									setTeamOrbit(d);
+									toggleOrbit(d);
 								});		
 									
 				//create groups for neighbor circles (planets)
@@ -130,8 +123,8 @@
 						.attr("class","orbit");
 					orbit.append("circle")
 						.attr("class","orbit");
-					orbit.append("text")
-						.attr("class","orbit");
+					orbit.append("svg")
+						.attr("class","text");
 				}
 			});
         </script>
