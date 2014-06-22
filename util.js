@@ -103,11 +103,8 @@ function toggleOrbit(dat) {
     //set properties and event handlers of each circle in orbit
     orbit= svg.selectAll("g.orbit")
             .data(neighbors)
-            .enter()
-            .append("g")
-            .attr("class","orbit");
         
-    orbit.append("circle")
+    orbit.select("circle")
         .attr("class","orbit")
         .attr("cx", function(d,i) {
                 return w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
@@ -124,7 +121,7 @@ function toggleOrbit(dat) {
         
     
     //add text to each group, set properties and event handler
-    texts= orbit.append("svg")
+    texts= orbit.select("svg")
                 .attr("class","text")
                 .attr("x", function(d,i) {
                         return -(d.wins*10+10) + w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
