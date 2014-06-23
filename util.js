@@ -64,6 +64,20 @@ function resize(group) {
     }
 }
 
+function showHelp() {
+	//initialize with help screen
+	axes.selectAll("ellipse")
+		.data([0,0.5,1])
+		.attr("rx", function(d) {
+					return offset + mainR + d*distScale;
+				})
+		.attr("ry", function(d) {
+					return offset + mainR + d*distScale;
+				})
+		.attr("fill-opacity",0.0)
+		.attr("stroke","#999999");
+}
+
 function toggleOrbit(dat) {
     var name= dat.team;
     var neighbors= dat.neighbors;
@@ -75,6 +89,10 @@ function toggleOrbit(dat) {
             return d.team==name ? 5 : 0;
         })
     
+	if (name=="HELP") {
+		showHelp();
+		return;
+	}
     x= getDistBounds(neighbors);
     max= x[0];
     min= x[1];
