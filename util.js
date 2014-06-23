@@ -68,8 +68,10 @@ function toggleOrbit(dat) {
     var name= dat.team;
     var neighbors= dat.neighbors;
     
-    var circs= svg.select("g.toggle").selectAll("circle");
-    circs.attr("stroke-width",function(d){
+    var circs= svg.selectAll("g.toggle")
+    circs.select("circle")
+		.attr("stroke-width",function(d,i){
+			toggleClicked[i]= 0;
             return d.team==name ? 5 : 0;
         })
     
