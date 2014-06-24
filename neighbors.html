@@ -13,6 +13,9 @@
 				margin-right: 2px;
 				background-color: teal;
 			}
+			#text {
+				font-family: sans-serif;
+			}
 		</style>
     </head>
     <body>
@@ -98,6 +101,7 @@
 							});	
 				toggle.append("text") //Add text to each group
 					.attr("class","toggle")
+					.attr("id","text")
 					.attr("x", function(d,i) {
 								if (i<8) {
 									return leftPad + toggleButtonDiam + leftPad + toggleButtonDiam/2;
@@ -110,6 +114,8 @@
 							return 200+(toggleButtonDiam+10)*(i%8);
 						})
 					.attr("text-anchor", "middle")
+					.attr("font-size",toggleButtonDiam/4)
+					.attr("font-family","sans-serif")
 					.attr("dominant-baseline","central")
 					.attr("fill", "white")
 					.text(function(d) { return d.team; });	

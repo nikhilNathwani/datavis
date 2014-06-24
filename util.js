@@ -81,6 +81,20 @@ function showHelp() {
 		.attr("stroke","#999999");
 }
 
+//format the axes
+function formatAxes(radii) {
+    axes.selectAll("ellipse")
+		.data(radii)
+        .attr("rx", function(d) {
+                    return offset + mainR + ((d-min)/(max-min))*distScale;
+                })
+        .attr("ry", function(d) {
+                    return offset + mainR + ((d-min)/(max-min))*distScale;
+                })
+        .attr("fill-opacity",0.0)
+        .attr("stroke","#999999");
+}
+
 function toggleOrbit(dat) {
     var name= dat.team;
     var neighbors= dat.neighbors;
@@ -102,20 +116,11 @@ function toggleOrbit(dat) {
     diff= max-min; //used when rescaling neighbor distance
 	x.push((max+min)/2);
     
+	formatAxes(x);
+	
 	//set sun image
 	sun.select("image").attr("xlink:href", "pics/"+name+".jpg")
 	
-    //format the axes
-    axes.selectAll("ellipse")
-		.data(x)
-        .attr("rx", function(d) {
-                    return offset + mainR + ((d-min)/(max-min))*distScale;
-                })
-        .attr("ry", function(d) {
-                    return offset + mainR + ((d-min)/(max-min))*distScale;
-                })
-        .attr("fill-opacity",0.0)
-        .attr("stroke","#999999");
     
     //set properties and event handlers of each circle in orbit
     orbit= svg.selectAll("g.orbit")
@@ -139,29 +144,32 @@ function toggleOrbit(dat) {
     
     //add text to each group, set properties and event handler
     texts= orbit.select("svg")
-                .attr("class","text")
-                .attr("x", function(d,i) {
-                        return (d.wins*winRadScale+minNeighRad) + orbitCenterX + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
-                    })
-                .attr("y", function(d,i) {
-                        return -(d.wins*winRadScale+minNeighRad) + h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
-                    })
-                .attr("width", function(d) {
-                        return 2*zoomRad;
-                    })
-				.attr("height", function(d) {
-                        return 2*zoomRad;
-                    });
+			.attr("class","text")
+			.attr("x", function(d,i) {
+					return orbitCenterX + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length) - zoomRad*(Math.sqrt(2)/2);
+				})
+			.attr("y", function(d,i) {
+					return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length) - zoomRad*(Math.sqrt(2)/2);
+				})
+			.attr("width", function(d) {
+					return 2*zoomRad;
+				})
+			.attr("height", function(d) {
+					return 2*zoomRad;
+				});
+			
                 
     texts.selectAll("text")
         .data(function(d){
                 return teamText(d);
             })
-        .attr("x", 0)
+        .attr("x", zoomRad*Math.sqrt(2)/2)
         .attr("y", function(d,i){
                 return 15*i;
             })
-        .attr("dominant-baseline","hanging")
+		.attr("id","text")
+		.attr("text-anchor","middle")
+		.attr("dominant-baseline","hanging")
         .attr("fill", "white")
         .attr("visibility","hidden")
         .moveToFront()
