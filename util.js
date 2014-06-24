@@ -4,7 +4,10 @@ d3.selection.prototype.moveToFront = function() {
       this.parentNode.appendChild(this);
     });
   };
-  
+
+var minNeighRad= 10
+var winRadScale= 10
+
 //returns max and min neighbor distance from central circle 
 function getDistBounds(arr) {
     max= -Number.MAX_VALUE;
@@ -38,7 +41,7 @@ function resize(group) {
         //zoom out all zoomed circles 
         gs.selectAll("circle.orbit")
             .transition().delay(0).duration(500).attr("r", function(d) {
-                    return d.wins*10+10;
+                    return d.wins*winRadScale + minNeighRad;
                 });
             
         //hide all visible circle text
@@ -58,7 +61,7 @@ function resize(group) {
     else {
         //un-zoom circle (i.e. set radius to original length) and re-hide circle's text
         circ.transition().delay(0).duration(500).attr("r", function(d) {
-            return d.wins*10+10;
+            return d.wins*winRadScale+minNeighRad;
         });
         txt.selectAll("text").transition().delay(200).duration(500).attr("visibility","hidden");
     }
@@ -121,13 +124,13 @@ function toggleOrbit(dat) {
     orbit.select("circle")
         .attr("class","orbit")
         .attr("cx", function(d,i) {
-                return w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
+                return orbitCenterX + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
             })
         .attr("cy", function(d,i) {
                 return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
             })
         .attr("r", function(d) {
-                return d.wins*10+10;
+                return d.wins*winRadScale+minNeighRad;
             })
         .attr("fill", function(d,i) {
                 return (d.name in colors) ? colors[d.name] : "#000000";
@@ -138,16 +141,16 @@ function toggleOrbit(dat) {
     texts= orbit.select("svg")
                 .attr("class","text")
                 .attr("x", function(d,i) {
-                        return -(d.wins*10+10) + w/2 + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
+                        return (d.wins*winRadScale+minNeighRad) + orbitCenterX + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
                     })
                 .attr("y", function(d,i) {
-                        return -(d.wins*10+10) + h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
+                        return -(d.wins*winRadScale+minNeighRad) + h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
                     })
                 .attr("width", function(d) {
-                        return 200;
+                        return 2*zoomRad;
                     })
 				.attr("height", function(d) {
-                        return 200;
+                        return 2*zoomRad;
                     });
                 
     texts.selectAll("text")

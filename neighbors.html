@@ -20,13 +20,19 @@
 			var teamNames= ["ATL", "BRK", "CHA", "CHI", "DAL", "GSW", "HOU", "IND", "LAC", "MEM", "MIA", "OKC", "POR", "SAS", "TOR", "WAS"]
 			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BRK":"#000000", "CHA":"#F26532", "CHH":"#25799A", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#EFEFEF", "NJN":"#002258", "NOH":"#0095CA", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAS":"#BEC8C9", "SAC":"#743389", "SEA":"#19542D", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874","HELP":"#ff1493"}
             //Width and height
-            var w= 70*17+10;
-            var h= 950;
+            var w= 1200;
+            var h= 1000;
             var mainR= w/12; //radius of main circle
             var distScale= 200
 			var zoomRad= w/8;
 			var offset= 15;
+			var leftPad= 30;
 			var toggleClicked= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //used in keeping toggle circles highlighted
+			var numAxes= 3;
+			var toggleButtonDiam= 60;
+			var toggleGroupWidth= 2*toggleButtonDiam + 2*leftPad + 10;
+			var imageSidelen= 200;
+			var orbitCenterX= toggleGroupWidth+zoomRad+distScale+offset+mainR
 			
 			//Create SVG element
 			var svg= d3.select("body")
@@ -37,10 +43,10 @@
 			//create group for concentric axes
 			var axes= svg.append("g")
 						.attr("class", "axes")
-			for (i=0; i<3; i++) {
+			for (i=0; i<numAxes; i++) {
 				axes.append("ellipse")
 					.attr("class","axes")
-					.attr("cx",w/2)
+					.attr("cx",orbitCenterX)
 					.attr("cy",h/2)
 			}
 		
@@ -54,20 +60,20 @@
 						.attr("class","sun")
 						.attr("id","sun")
 						.append("ellipse")
-						.attr("cx",w/2)
+						.attr("cx",orbitCenterX)
 						.attr("cy",h/2)
 						.attr("rx",mainR)
 						.attr("ry",mainR);
 				sun.append("image")
 						.attr("class","sun")
 						.attr("clip-path","url(#sun)")
-						.attr("x",w/2-100)
-						.attr("y",h/2-100)
-						.attr("width",200)
-						.attr("height",200);
+						.attr("x",orbitCenterX)
+						.attr("y",h/2)
+						.attr("width",imageSidelen)
+						.attr("height",imageSidelen);
 				
 				
-				//create top row of 2014 playoff teams
+				//create left bar of 2014 playoff teams
 				toggle= svg.selectAll("g.toggle") //Add groups for each toggle button
 							.data(teamAndNeighs)
 							.enter()
@@ -76,22 +82,32 @@
 				toggle.append("circle") //Add circle to each group
 					.attr("class","toggle")
 					.attr("cx", function(d,i) {
-								return i<8 ? w-80 : 80;
+								if (i<8) {
+									return leftPad + toggleButtonDiam + leftPad + toggleButtonDiam/2;
+								}
+								else {
+									return leftPad + toggleButtonDiam/2;
+								}
 							})
 					.attr("cy", function(d,i) {
-							return 200+70*(i%8);
+							return 200+(toggleButtonDiam+10)*(i%8);
 						})
-					.attr("r", 30)
+					.attr("r", toggleButtonDiam/2)
 					.attr("fill", function(d) {
 								return (d.team in colors) ? colors[d.team] : "#000000";
 							});	
 				toggle.append("text") //Add text to each group
 					.attr("class","toggle")
 					.attr("x", function(d,i) {
-								return i<8 ? w-80 : 80;
+								if (i<8) {
+									return leftPad + toggleButtonDiam + leftPad + toggleButtonDiam/2;
+								}
+								else {
+									return leftPad + toggleButtonDiam/2;
+								}
 							})
 					.attr("y", function(d,i) {
-							return 200+70*(i%8);
+							return 200+(toggleButtonDiam+10)*(i%8);
 						})
 					.attr("text-anchor", "middle")
 					.attr("dominant-baseline","central")
