@@ -165,9 +165,10 @@ function toggleOrbit(dat) {
             })
         .attr("x", zoomRad*Math.sqrt(2)/2)
         .attr("y", function(d,i){
-                return 15*i;
+                return (zoomRad+zoomRad/2)*i/8;
             })
 		.attr("id","text")
+		.attr("font-size",zoomRad/8)
 		.attr("text-anchor","middle")
 		.attr("dominant-baseline","hanging")
         .attr("fill", "white")
