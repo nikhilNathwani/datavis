@@ -140,8 +140,15 @@
 									.attr("class","orbit");
 					orbGroup.append("circle");
 					txtGroup= orbGroup.append("svg");
-					for (j=0; j<4; j++) {
-						txtGroup.append("text");
+					for (j=0; j<9; j++) {
+						if(j==2) {
+							txtGroup.append("a")
+									.attr("class","link")
+									.append("text");
+						}
+						else {
+							txtGroup.append("text");
+						}
 					}
 				}
 			});

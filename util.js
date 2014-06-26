@@ -25,7 +25,7 @@ function getDistBounds(arr) {
 
 //return text to display on circle when clicked
 function teamText(d) {
-    return [d.name + " " + d.year, d.wins + " series won","Similarities:", d.attrs];
+    return [d.name + " " + d.year, d.wins + " series won", d.url,"Biggest Similarities:"].concat(d.attrs)
 }
 
 //zoom or un-zoom informational circle
@@ -158,23 +158,40 @@ function toggleOrbit(dat) {
 					return 2*zoomRad;
 				});
 			
-                
+     
+	sizes= [zoomRad/6,zoomRad/8,zoomRad/8,zoomRad/8,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12]           
     texts.selectAll("text")
         .data(function(d){
                 return teamText(d);
             })
         .attr("x", zoomRad*Math.sqrt(2)/2)
         .attr("y", function(d,i){
-                return (zoomRad+zoomRad/2)*i/8;
+				s= 0;
+				for(k=0;k<=i;k++) {
+					s += sizes[k];
+				}
+                return s+(i-1)*zoomRad/12;
             })
 		.attr("id","text")
-		.attr("font-size",zoomRad/8)
+		.attr("font-size",function(d,i){return sizes[i];})
 		.attr("text-anchor","middle")
 		.attr("dominant-baseline","hanging")
         .attr("fill", "white")
         .attr("visibility","hidden")
         .moveToFront()
-        .text(function(d){return d;})
+        .text(function(d){
+				if(d3.select(this.parentNode).attr("class")=="link") {
+					d3.select(this.parentNode).attr("xlink:href", "http://www.basketball-reference.com"+d);
+					d3.select(this).style("text-decoration","underline")
+									.on("click", function() {
+										return;
+									});
+					return "Team info";
+				}
+				else {
+					return d;
+				}
+			})
         
     //set event handlers for neighbor orbit groups
     orbit.on("mouseover",function() {

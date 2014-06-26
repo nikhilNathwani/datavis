@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <script type="text/javascript" src="d3/d3.js"></script>
+		<script type="text/javascript" src="util.js"></script>
+        <style type="text/css">
+			div.bar {
+				display: inline-block;
+				width: 20px;
+				height: 75px;	/* Gets overriden by D3-assigned height below */
+				margin-right: 2px;
+				background-color: teal;
+			}
+			#text {
+				font-family: "Verdana",sans-serif;
+			}
+		</style>
+    </head>
+    <body>
+        <script type="text/javascript">
+			
+			var w= 500;
+			var h= 500;
+			
+			var rad= w/2;
+			var start= 9*h/24;
+			
+			var color= "blue";
+			
+			//move selected object to front of parent's layout
+			d3.selection.prototype.moveToFront = function() {
+				return this.each(function(){
+				  this.parentNode.appendChild(this);
+				});
+			  };
+  
+			//Create SVG element
+			var svg= d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+					
+			//Create main circle
+			var sun= svg.append("g")
+					.attr("class","sun");
+			
+			var center= sun.append("circle")
+							.attr("class","sun")
+							.attr("cx",w/2)
+							.attr("cy",h/2)
+							.attr("r", w/2)
+							.attr("fill",color);
+							
+			sun.append("clipPath")
+					.attr("class","sun")
+					.attr("id","clip")
+					.append("rect")
+					.attr("x",0)
+					.attr("y",start)
+					.attr("width",w)
+					.attr("height",2*(rad-start));
+			
+			sun.append("circle")
+					.attr("class","sun")
+					.attr("clip-path","url(#clip)")
+					.attr("cx",w/2)
+					.attr("cy",h/2)
+					.attr("r", rad)
+					.attr("fill",d3.rgb(color).darker(1));
+	
+			
+        </script>
+    </body>
+</html>
