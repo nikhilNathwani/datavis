@@ -140,15 +140,15 @@
 									.attr("class","orbit");
 					orbGroup.append("circle");
 					txtGroup= orbGroup.append("svg");
-					for (j=0; j<9; j++) {
-						if(j==2) {
-							txtGroup.append("a")
-									.attr("class","link")
-									.append("text");
-						}
-						else {
-							txtGroup.append("text");
-						}
+					
+					//Team name with link
+					txtGroup.append("a")
+							.attr("class","link")
+							.append("text");
+							
+					//Appending rest of text
+					for (j=0; j<8; j++) {
+						txtGroup.append("text");
 					}
 				}
 			});

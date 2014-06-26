@@ -25,7 +25,7 @@ function getDistBounds(arr) {
 
 //return text to display on circle when clicked
 function teamText(d) {
-    return [d.name + " " + d.year, d.wins + " series won", d.url,"Biggest Similarities:"].concat(d.attrs)
+    return [[d.name + " " + d.year,d.url], d.wins + " series won","Biggest Similarities:"].concat(d.attrs)
 }
 
 //zoom or un-zoom informational circle
@@ -179,14 +179,14 @@ function toggleOrbit(dat) {
         .attr("fill", "white")
         .attr("visibility","hidden")
         .moveToFront()
-        .text(function(d){
-				if(d3.select(this.parentNode).attr("class")=="link") {
-					d3.select(this.parentNode).attr("xlink:href", "http://www.basketball-reference.com"+d);
+        .text(function(d,i){
+				if(i==0) {
+					d3.select(this.parentNode).attr("xlink:href", "http://www.basketball-reference.com"+d[1]);
 					d3.select(this).style("text-decoration","underline")
 									.on("click", function() {
 										return;
 									});
-					return "Team info";
+					return d[0];
 				}
 				else {
 					return d;
