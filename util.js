@@ -1,12 +1,10 @@
 //move selected object to front of parent's layout
 d3.selection.prototype.moveToFront = function() {
+	console.log("moving");
     return this.each(function(){
       this.parentNode.appendChild(this);
     });
   };
-
-var minNeighRad= 10
-var winRadScale= 10
 
 //returns max and min neighbor distance from central circle 
 function getDistBounds(arr) {
@@ -26,6 +24,23 @@ function getDistBounds(arr) {
 //return text to display on circle when clicked
 function teamText(d) {
     return [[d.name + " " + d.year,d.url], d.wins + " series won","Biggest Similarities:"].concat(d.attrs)
+}
+
+function hideOrbit() {
+	return;	
+}
+
+function hideHelp() {
+	return;
+}
+
+function showHelp() {
+	return;
+}
+
+//Unselect all toggles (and help button) except that at index "except" (help is index 16)
+function unSelectToggles(except) {
+	return;	
 }
 
 //zoom or un-zoom informational circle
@@ -159,7 +174,7 @@ function toggleOrbit(dat) {
 				});
 			
      
-	sizes= [zoomRad/6,zoomRad/8,zoomRad/8,zoomRad/8,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12]           
+	sizes= [zoomRad/6,zoomRad/8,zoomRad/8,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12]           
     texts.selectAll("text")
         .data(function(d){
                 return teamText(d);
@@ -197,7 +212,7 @@ function toggleOrbit(dat) {
     orbit.on("mouseover",function() {
                 color= d3.select(this).select("circle.orbit").attr("fill");
                 d3.select(this).select("circle.orbit").attr("stroke",d3.rgb(color).darker(1));
-                d3.select(this).select("circle.orbit").attr("stroke-width","5");
+                d3.select(this).select("circle.orbit").attr("stroke-width","5")
             })
         .on("mouseout",function() {
                 d3.select(this).select("circle.orbit").attr("stroke-width","0");
