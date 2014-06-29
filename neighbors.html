@@ -5,6 +5,7 @@
         <title>D3 Test</title>
         <script type="text/javascript" src="d3/d3.js"></script>
 		<script type="text/javascript" src="util.js"></script>
+		<script type="text/javascript" src="view.js"></script>
         <style type="text/css">
 			div.bar {
 				display: inline-block;
@@ -55,6 +56,7 @@
 					.attr("cx",orbitCenterX)
 					.attr("cy",h/2)
 			}
+			formatAxes();
 		
 			//load and display neighbor data
 			d3.json("data.json", function(teamAndNeighs) {		
