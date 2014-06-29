@@ -39,28 +39,71 @@ function hideOrbit() {
 			.attr("ry",0);	
 }
 
-function hideHelp() {
-	return;
+function hideHelp(dat){
+	//unhide sun
+	sunGroup= svg.select("g.sun")
+	sunGroup.select("ellipse")
+			.attr("rx",mainR)
+			.attr("ry",mainR);
+	sunGroup.select("image").attr("xlink:href", "pics/"+dat.team+".jpg");
 }
 
 function showHelp() {
 	//initialize with help screen
-	/*axes.selectAll("ellipse")
-		.data([0,0.5,1])
-		.attr("rx", function(d) {
-					return offset + mainR + d*distScale;
-				})
-		.attr("ry", function(d) {
-					return offset + mainR + d*distScale;
-				})
-		.attr("fill-opacity",0.0)
-		.attr("stroke","#999999");*/
+	formatAxes([{"dist":0},{"dist":0.5},{"dist":1}]);
 	hideOrbit();
+}
+
+function setOrbit(dat) {
+	var name= dat.team;
+    var neighbors= dat.neighbors;
+	
+	//set sun image
+	sun.select("image").attr("xlink:href", "pics/"+name+".jpg");
+	
+	//show axes
+	formatAxes(neighbors);
+	
+    //set properties and event handlers of each circle in orbit
+    orbit= svg.selectAll("g.orbit")
+            .data(neighbors);  	
+    orbit.select("circle")
+        .attr("class","orbit")
+        .attr("cx", function(d,i) {
+                return orbitCenterX + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
+            })
+        .attr("cy", function(d,i) {
+                return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
+            })
+        .attr("r", function(d) {
+                return d.wins*winRadScale+minNeighRad;
+            })
+        .attr("fill", function(d,i) {
+                return (d.name in colors) ? colors[d.name] : "#000000";
+            })
+	
+	//set event handlers for neighbor orbit groups
+    orbit.on("mouseover",function() {
+                color= d3.select(this).select("circle.orbit").attr("fill");
+                d3.select(this).select("circle.orbit").attr("stroke",d3.rgb(color).darker(1));
+                d3.select(this).select("circle.orbit").attr("stroke-width","5")
+            })
+        .on("mouseout",function() {
+                d3.select(this).select("circle.orbit").attr("stroke-width","0");
+            })
+        .on("click", function() {
+                resize(d3.select(this));
+            });
 }
 
 //Unselect all toggles (and help button) except that at index "except" (help is index 16)
 function unSelectToggles(except) {
-	return;	
+	var circs= svg.selectAll("g.toggle")
+    circs.select("circle")
+		.attr("stroke-width",function(d,i){
+			toggleClicked[i]= 0;
+            return except==i ? 5 : 0;
+        })
 }
 
 //zoom or un-zoom informational circle
@@ -103,9 +146,16 @@ function resize(group) {
 }
 
 //format the axes
-function formatAxes(radii) {
+function formatAxes(dat) {
+	//set radii of axes
+	x= getDistBounds(dat);
+    max= x[0];
+    min= x[1];
+	x.push((max+min)/2);
+	
+	//draw ellipses
     axes.selectAll("ellipse")
-		.data(radii)
+		.data(x)
         .attr("rx", function(d) {
                     return offset + mainR + ((d-min)/(max-min))*distScale;
                 })
@@ -116,53 +166,10 @@ function formatAxes(radii) {
         .attr("stroke","#999999");
 }
 
-function toggleOrbit(dat) {
+function setZoomText(dat) {
     var name= dat.team;
     var neighbors= dat.neighbors;
-    
-    var circs= svg.selectAll("g.toggle")
-    circs.select("circle")
-		.attr("stroke-width",function(d,i){
-			toggleClicked[i]= 0;
-            return d.team==name ? 5 : 0;
-        })
-    
-	if (name=="HELP") {
-		showHelp();
-		return;
-	}
-    x= getDistBounds(neighbors);
-    max= x[0];
-    min= x[1];
-    diff= max-min; //used when rescaling neighbor distance
-	x.push((max+min)/2);
-    
-	formatAxes(x);
-	
-	//set sun image
-	sun.select("image").attr("xlink:href", "pics/"+name+".jpg")
-	
-    
-    //set properties and event handlers of each circle in orbit
-    orbit= svg.selectAll("g.orbit")
-            .data(neighbors)
-        
-    orbit.select("circle")
-        .attr("class","orbit")
-        .attr("cx", function(d,i) {
-                return orbitCenterX + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
-            })
-        .attr("cy", function(d,i) {
-                return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
-            })
-        .attr("r", function(d) {
-                return d.wins*winRadScale+minNeighRad;
-            })
-        .attr("fill", function(d,i) {
-                return (d.name in colors) ? colors[d.name] : "#000000";
-            })
-        
-    
+
     //add text to each group, set properties and event handler
     texts= orbit.select("svg")
 			.attr("class","text")
@@ -178,8 +185,7 @@ function toggleOrbit(dat) {
 			.attr("height", function(d) {
 					return 2*zoomRad;
 				});
-			
-     
+			 
 	sizes= [zoomRad/6,zoomRad/8,zoomRad/8,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12]           
     texts.selectAll("text")
         .data(function(d){
@@ -213,17 +219,4 @@ function toggleOrbit(dat) {
 					return d;
 				}
 			})
-        
-    //set event handlers for neighbor orbit groups
-    orbit.on("mouseover",function() {
-                color= d3.select(this).select("circle.orbit").attr("fill");
-                d3.select(this).select("circle.orbit").attr("stroke",d3.rgb(color).darker(1));
-                d3.select(this).select("circle.orbit").attr("stroke-width","5")
-            })
-        .on("mouseout",function() {
-                d3.select(this).select("circle.orbit").attr("stroke-width","0");
-            })
-        .on("click", function() {
-                resize(d3.select(this));
-            });
 }

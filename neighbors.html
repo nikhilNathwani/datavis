@@ -38,6 +38,7 @@
 			var orbitCenterX= toggleGroupWidth+zoomRad+distScale+offset+mainR;
 			var minNeighRad= w/120;
 			var winRadScale= w/120;
+			var onHelp= false;
 			
 			//Create SVG element
 			var svg= d3.select("body")
@@ -101,7 +102,9 @@
 									}
 								})
 					.on("click", function(d,i) {
+									onHelp= true;
 									toggleClicked[toggleClicked.length-1]= 1;
+									unSelectToggles(toggleClicked.length-1);
 									showHelp();
 								});
 				help.append("text") //Add text to each group
@@ -169,8 +172,13 @@
 										}
 									})
 						.on("click", function(d,i) {
-										toggleOrbit(d);
+										if(onHelp) {
+											hideHelp(d);
+										}
+										onHelp= false;
+										unSelectToggles(i);
 										toggleClicked[i]= 1;
+										setOrbit(d);
 									});
 												
 				//create groups for neighbor circles (planets)
