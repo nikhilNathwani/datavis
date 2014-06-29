@@ -1,6 +1,5 @@
 //move selected object to front of parent's layout
 d3.selection.prototype.moveToFront = function() {
-	console.log("moving");
     return this.each(function(){
       this.parentNode.appendChild(this);
     });
@@ -27,7 +26,17 @@ function teamText(d) {
 }
 
 function hideOrbit() {
-	return;	
+	//Hide all neighbor circles
+	orbGroups= svg.selectAll("g.orbit")
+	orbGroups.select("circle")
+			.attr("r",0)
+			
+			
+	//Hide sun
+	sunGroup= svg.select("g.sun")
+	sunGroup.select("ellipse")
+			.attr("rx",0)
+			.attr("ry",0);	
 }
 
 function hideHelp() {
@@ -35,7 +44,18 @@ function hideHelp() {
 }
 
 function showHelp() {
-	return;
+	//initialize with help screen
+	/*axes.selectAll("ellipse")
+		.data([0,0.5,1])
+		.attr("rx", function(d) {
+					return offset + mainR + d*distScale;
+				})
+		.attr("ry", function(d) {
+					return offset + mainR + d*distScale;
+				})
+		.attr("fill-opacity",0.0)
+		.attr("stroke","#999999");*/
+	hideOrbit();
 }
 
 //Unselect all toggles (and help button) except that at index "except" (help is index 16)
@@ -80,20 +100,6 @@ function resize(group) {
         });
         txt.selectAll("text").transition().delay(200).duration(500).attr("visibility","hidden");
     }
-}
-
-function showHelp() {
-	//initialize with help screen
-	axes.selectAll("ellipse")
-		.data([0,0.5,1])
-		.attr("rx", function(d) {
-					return offset + mainR + d*distScale;
-				})
-		.attr("ry", function(d) {
-					return offset + mainR + d*distScale;
-				})
-		.attr("fill-opacity",0.0)
-		.attr("stroke","#999999");
 }
 
 //format the axes
