@@ -31,6 +31,10 @@ function hideOrbit() {
 	orbGroups.select("circle")
 			.attr("r",0)
 			
+	//Hide all neighbor text
+	orbGroups.selectAll("text")
+			.attr("font-size",0);
+			
 			
 	//Hide sun
 	sunGroup= svg.select("g.sun")
