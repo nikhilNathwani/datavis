@@ -17,6 +17,14 @@ function hideOrbit() {
 }
 
 function hideHelp(dat){
+    //hide help text on axes
+    help.selectAll("text.helpPath")
+        .attr("font-size", 0)
+    
+    //hide help sun
+    help.select("circle.sun")
+        .attr("fill","none")
+    
 	//unhide sun
 	sunGroup= svg.select("g.sun")
 	sunGroup.select("ellipse")
@@ -26,11 +34,31 @@ function hideHelp(dat){
 }
 
 function showHelp() {
+    //Hide orbit
+    if(!onHelp) {
+        hideOrbit();  
+    }
+    onHelp= true;
+    
+    //show help sun
+    help.select("circle.sun")
+        .attr("fill",colors["HELP"])
+        
+    //show help text on axes
+    help.selectAll("text.helpPath")
+        .attr("font-size", distScale/8)
+    
 	//initialize with help screen
-	hideOrbit();
+	
+    
 }
 
 function setOrbit(dat) {
+    //Hide help
+    if(onHelp) {
+        hideHelp(dat);  
+    }
+    onHelp= false;
 	var name= dat.team;
     var neighbors= dat.neighbors;
 	
@@ -175,7 +203,6 @@ function setZoomText(dat) {
             })
 		.attr("id","text")
 		.attr("font-size",function(d,i){return sizes[i];})
-		.attr("text-anchor","middle")
 		.attr("dominant-baseline","hanging")
         .attr("fill", "white")
         .attr("visibility","hidden")
