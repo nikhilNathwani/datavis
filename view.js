@@ -127,7 +127,7 @@ function setOrbit(dat) {
 
 //Unselect all toggles (and help button) except that at index "except" (help is index 16)
 function unSelectToggles(except) {
-	var circs= svg.select("svg.toggle")
+	var circs= d3.select("body").select("svg.toggle")
                 .selectAll("g.toggleButton");
     circs.select("circle")
 		.attr("stroke-width",function(d,i){

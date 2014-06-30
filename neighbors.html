@@ -135,18 +135,18 @@
 				//help button
 				helpButtonDiv= d3.select("body").append("div")
 								.attr("id","fixed1")
-								.style("top",toggleButtonDiam+"px")
-								.style("right",toggleButtonDiam+"px")
-								.style("width",toggleButtonDiam+"px")
-								.style("height",toggleButtonDiam+"px")
+								.style("top",toggleButtonDiam+10+"px")
+								.style("right",toggleButtonDiam+10+"px")
+								.style("width",toggleButtonDiam+10+"px")
+								.style("height",toggleButtonDiam+10+"px")
 								.style("position","fixed")
 				helpButton= helpButtonDiv.append("svg")
 										.attr("class","helpButton")
 				
 				helpButton.append("circle")
 						.attr("class", "helpButton")
-						.attr("cx",toggleButtonDiam/2)
-						.attr("cy",toggleButtonDiam/2)
+						.attr("cx",toggleButtonDiam/2+5)
+						.attr("cy",toggleButtonDiam/2+5)
 						.attr("r",toggleButtonDiam/2)
 						.attr("fill", colors["HELP"])
 						
@@ -169,8 +169,8 @@
 								});
 				helpButton.append("text") //Add text to each group
 					.attr("class","helpButton")
-					.attr("x", toggleButtonDiam/2)
-					.attr("y", toggleButtonDiam/2)
+					.attr("x", toggleButtonDiam/2+5)
+					.attr("y", toggleButtonDiam/2+5)
 					.attr("font-size",toggleButtonDiam/4)
 					.attr("font-family","sans-serif")
 					.attr("dominant-baseline","central")
