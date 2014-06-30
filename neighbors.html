@@ -7,13 +7,6 @@
 		<script type="text/javascript" src="util.js"></script>
 		<script type="text/javascript" src="view.js"></script>
         <style type="text/css">
-			div.bar {
-				display: inline-block;
-				width: 20px;
-				height: 75px;	/* Gets overriden by D3-assigned height below */
-				margin-right: 2px;
-				background-color: teal;
-			}
 			text {
 				font-family: sans-serif;
 				text-anchor: middle;  
@@ -23,7 +16,7 @@
     <body>
         <script type="text/javascript">
 			var teamNames= ["ATL", "BRK", "CHA", "CHI", "DAL", "GSW", "HOU", "IND", "LAC", "MEM", "MIA", "OKC", "POR", "SAS", "TOR", "WAS"]
-			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BRK":"#000000", "CHA":"#F26532", "CHH":"#25799A", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#EFEFEF", "NJN":"#002258", "NOH":"#0095CA", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAS":"#BEC8C9", "SAC":"#743389", "SEA":"#19542D", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874","HELP":"#6b8323"}
+			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BRK":"#000000", "CHA":"#F26532", "CHH":"#25799A", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#EFEFEF", "NJN":"#002258", "NOH":"#0095CA", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAS":"#BEC8C9", "SAC":"#743389", "SEA":"#19542D", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874","HELP":"#d8d8f0"}
             //Width and height
             var w= 1200;
             var h= 900;
@@ -31,14 +24,14 @@
             var distScale= 150
 			var zoomRad= w/8;
 			var offset= 15;
-			var leftPad= 40;
+			var leftPad= 50;
 			var toggleClicked= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //used in keeping toggle circles highlighted
 			var numAxes= 2;
 			var toggleButtonDiam= 60;
 			var toggleGroupWidth= 2.5*toggleButtonDiam + 2*leftPad;
 			var imageSidelen= 200;
 			var orbitCenterX= toggleGroupWidth+zoomRad+distScale+offset+mainR;
-			var orbitCenterY= h/2;
+			var orbitCenterY= 5*h/12;
 			var minNeighRad= w/120;
 			var winRadScale= w/120;
 			var onHelp= true;
@@ -65,7 +58,7 @@
 			
 			
 			
-			/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HELP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+			/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HELP SCREEN~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 			
 			//group for help items
 			help= svg.append("g")
@@ -140,13 +133,20 @@
 				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HELP BUTTON~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 				
 				//help button
-				helpButton= help.append("g")
-								.attr("class","helpButton")
+				helpButtonDiv= d3.select("body").append("div")
+								.attr("id","fixed1")
+								.style("top",toggleButtonDiam+"px")
+								.style("right",toggleButtonDiam+"px")
+								.style("width",toggleButtonDiam+"px")
+								.style("height",toggleButtonDiam+"px")
+								.style("position","fixed")
+				helpButton= helpButtonDiv.append("svg")
+										.attr("class","helpButton")
 				
 				helpButton.append("circle")
 						.attr("class", "helpButton")
-						.attr("cx",3*w/4)
-						.attr("cy",h/4)
+						.attr("cx",toggleButtonDiam/2)
+						.attr("cy",toggleButtonDiam/2)
 						.attr("r",toggleButtonDiam/2)
 						.attr("fill", colors["HELP"])
 						
@@ -169,8 +169,8 @@
 								});
 				helpButton.append("text") //Add text to each group
 					.attr("class","helpButton")
-					.attr("x", 3*w/4)
-					.attr("y", h/4)
+					.attr("x", toggleButtonDiam/2)
+					.attr("y", toggleButtonDiam/2)
 					.attr("font-size",toggleButtonDiam/4)
 					.attr("font-family","sans-serif")
 					.attr("dominant-baseline","central")
@@ -185,7 +185,7 @@
 				toggle= svg.append("svg")
 							.attr("class","toggle")
 							.attr("x",0)
-							.attr("y",150)
+							.attr("y",5)
 							.attr("width", toggleGroupWidth)
 							.attr("height", h);
 				
@@ -225,7 +225,7 @@
 								}
 							})
 					.attr("cy", function(d,i) {
-							return 3*togTitleFontSize + 2*togConfFontSize + (toggleButtonDiam+10)*(i%8);
+							return 2.5*togTitleFontSize + 2.5*togConfFontSize + (toggleButtonDiam+5)*(i%8);
 						})
 					.attr("r", toggleButtonDiam/2)
 					.attr("fill", function(d) {
@@ -243,7 +243,7 @@
 								}
 							})
 					.attr("y", function(d,i) {
-							return 3*togTitleFontSize + 2*togConfFontSize + (toggleButtonDiam+10)*(i%8);
+							return 2.5*togTitleFontSize + 2.5*togConfFontSize + (toggleButtonDiam+5)*(i%8);
 						})
 					.attr("font-size",toggleButtonDiam/4)
 					.attr("font-family","sans-serif")
