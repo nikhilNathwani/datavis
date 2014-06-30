@@ -41,7 +41,7 @@
 			var toggleGroupWidth= 2.5*toggleButtonDiam + 2*leftPad;
 			var imageSidelen= 200;
 			var orbitCenterX= toggleGroupWidth+zoomRad+distScale+offset+mainR;
-			var orbitCenterY= h/2;
+			var orbitCenterY= 5+zoomRad+distScale+offset+mainR;
 			var minNeighRad= w/120;
 			var winRadScale= w/120;
 			var onHelp= true;
@@ -66,6 +66,32 @@
 				.text("Gauging playoff potential based on success of similar teams")
 				.attr("x",15)
 				.attr("y",80)
+			
+			
+			
+			/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CREDITS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+			
+			svg.append("text")
+				.attr("class","credits")
+				.text("coded & designed by: Nikhil Nathwani")
+				.attr("x",w/2)
+				.attr("y",h-60)
+				.attr("fill","#999999")
+				.style("text-anchor","middle")
+			svg.append("text")
+				.attr("class","credits")
+				.text("source: basketball-reference.com")
+				.attr("x",w/2)
+				.attr("y",h-40)
+				.attr("fill","#999999")
+				.style("text-anchor","middle")
+			svg.append("text")
+				.attr("class","credits")
+				.text("v1.0: Jun 2014")
+				.attr("x",w/2)
+				.attr("y",h-20)
+				.attr("fill","#999999")
+				.style("text-anchor","middle")
 			
 			
 			
