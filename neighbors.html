@@ -11,6 +11,16 @@
 				font-family: sans-serif;
 				text-anchor: middle;  
 			}
+			.title {
+				font-size: 36px;
+				fill: rgb(123,123,123);
+				text-anchor: start;
+			}
+			.subtitle {
+				font-size: 20px;
+				fill: rgb(70,70,70);
+				text-anchor: start;
+			}
 		</style>
     </head>
     <body>
@@ -18,15 +28,15 @@
 			var teamNames= ["ATL", "BRK", "CHA", "CHI", "DAL", "GSW", "HOU", "IND", "LAC", "MEM", "MIA", "OKC", "POR", "SAS", "TOR", "WAS"]
 			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BRK":"#000000", "CHA":"#F26532", "CHH":"#25799A", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#EFEFEF", "NJN":"#002258", "NOH":"#0095CA", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAS":"#BEC8C9", "SAC":"#743389", "SEA":"#19542D", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874","HELP":"#d8d8f0"}
             //Width and height
-            var w= 1200;
-            var h= 590;
+            var w= 1250;
+            var h= 900;
             var mainR= w/12; //radius of main circle
             var distScale= 150
 			var zoomRad= w/8;
 			var offset= 15;
 			var leftPad= 50;
 			var toggleClicked= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //used in keeping toggle circles highlighted
-			var numAxes= 2;
+			var numAxes= 1;
 			var toggleButtonDiam= 60;
 			var toggleGroupWidth= 2.5*toggleButtonDiam + 2*leftPad;
 			var imageSidelen= 200;
@@ -41,6 +51,22 @@
 						.append("svg")
 						.attr("width", w)
 						.attr("height", h);
+						
+						
+						
+			/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TITLE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+			
+			svg.append("text")
+				.attr("class","title")
+				.text("Teams don't fall far from the playoff tree")
+				.attr("x",10)
+				.attr("y",45)
+			svg.append("text")
+				.attr("class","subtitle")
+				.text("Gauging playoff potential based on success of similar teams")
+				.attr("x",15)
+				.attr("y",80)
+			
 			
 			
 			/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~AXES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -131,31 +157,21 @@
 				
 				
 				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HELP BUTTON~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-				
-				//help button
-				helpButtonDiv= d3.select("body").append("div")
-								.style("top","2%")
-								.style("right","2%")
-								.style("width","7%")
-								.style("height","16%")
-								.style("border-radius","50%")
-								.style("position","fixed")
-								.style("background-fill","white");
 								
-				helpButton= helpButtonDiv.append("svg")
-										.attr("class","helpButton")
+				helpButton= svg.append("g")
+								.attr("class","helpButton")
 				
 				helpButton.append("circle")
 						.attr("class", "helpButton")
-						.attr("cx","50%")
-						.attr("cy","50%")
-						.attr("r","45%")
+						.attr("cx","97%")
+						.attr("cy","6%")
+						.attr("r",toggleButtonDiam/2)
 						.attr("fill", colors["HELP"])
 						
 				helpButton.on("mouseover",function() { //Add event handler to each GROUP (not each individual circle/text!)
 								color= d3.select(this).select("circle").attr("fill");
 								d3.select(this).select("circle").attr("stroke",d3.rgb(color).darker(1));
-								d3.select(this).select("circle").attr("stroke-width","5%");
+								d3.select(this).select("circle").attr("stroke-width",5);
 							})
 					.on("mouseout",function() {
 									for(i=0; i<17; i++) {
@@ -171,9 +187,9 @@
 								});
 				helpButton.append("text") //Add text to each group
 					.attr("class","helpButton")
-					.attr("x","50%")
-					.attr("y", "50%")
-					.attr("font-size",22)
+					.attr("x","97%")
+					.attr("y", "6%")
+					.attr("font-size",toggleButtonDiam/4)
 					.attr("font-family","sans-serif")
 					.attr("dominant-baseline","central")
 					.attr("fill", "white")
@@ -184,24 +200,15 @@
 				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TOGGLE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 				
 				//create left bar of 2014 playoff teams
-				toggle= d3.select("body")
-							.append("div")
-							.style("top",5+"px")
-							.style("left",0+"px")
-							.style("height","100%")
-							.style("width","20%")
-							.style("position","fixed")
-							.style("overflow","scroll")
-							.style("background-color", "white")
-							.append("svg")
+				toggle= svg.append("svg")
 							.attr("class","toggle")
 							.attr("x",0)
-							.attr("y",5)
+							.attr("y",115)
 							.attr("width", toggleGroupWidth)
 							.attr("height", h);
 				
-				togTitleFontSize= 22;
-				togConfFontSize= 18;
+				togTitleFontSize= 20;
+				togConfFontSize= 16;
 				confs= ["WEST","EAST"];
 				toggle.append("text")
 						.attr("fill","#999999")

@@ -127,7 +127,7 @@ function setOrbit(dat) {
 
 //Unselect all toggles (and help button) except that at index "except" (help is index 16)
 function unSelectToggles(except) {
-	var circs= d3.select("body").select("svg.toggle")
+	var circs= svg.select("svg.toggle")
                 .selectAll("g.toggleButton");
     circs.select("circle")
 		.attr("stroke-width",function(d,i){
@@ -178,8 +178,9 @@ function resize(group) {
 //format the axes
 function formatAxes() {
 	//set radii of axes
-	x= [0.5*(1-(offset)/distScale),1]
-	
+	//x= [0.5*(1-(offset)/distScale),1]
+	x=[1];
+    
 	//draw ellipses
     axes.selectAll("ellipse")
 		.data(x)
