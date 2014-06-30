@@ -33,11 +33,12 @@
 			var offset= 15;
 			var leftPad= 30;
 			var toggleClicked= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //used in keeping toggle circles highlighted
-			var numAxes= 3;
+			var numAxes= 2;
 			var toggleButtonDiam= 60;
-			var toggleGroupWidth= 2*toggleButtonDiam + 2*leftPad + 10;
+			var toggleGroupWidth= 2.5*toggleButtonDiam + 2*leftPad;
 			var imageSidelen= 200;
 			var orbitCenterX= toggleGroupWidth+zoomRad+distScale+offset+mainR;
+			var orbitCenterY= h/2;
 			var minNeighRad= w/120;
 			var winRadScale= w/120;
 			var onHelp= true;
@@ -47,6 +48,9 @@
 						.append("svg")
 						.attr("width", w)
 						.attr("height", h);
+			
+			
+			/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~AXES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 						
 			//create group for concentric axes
 			var axes= svg.append("g")
@@ -55,9 +59,13 @@
 				axes.append("ellipse")
 					.attr("class","axes")
 					.attr("cx",orbitCenterX)
-					.attr("cy",h/2)
+					.attr("cy",orbitCenterY)
 			}
 			formatAxes();
+			
+			
+			
+			/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HELP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 			
 			//group for help items
 			help= svg.append("g")
@@ -68,18 +76,17 @@
 				.attr("id","veryVerySimilar")
 				.attr("stroke","none")
 				.attr("fill","none")
-				.attr("d", "M " + (orbitCenterX-offset-mainR) + " " + h/2 + " " + "A " + mainR + " " + mainR + " 0 1 1 " + (orbitCenterX + offset + mainR) + " " + h/2)
+				.attr("d", "M " + (orbitCenterX-offset-mainR) + " " + orbitCenterY + " " + "A " + mainR + " " + mainR + " 0 1 1 " + (orbitCenterX + offset + mainR) + " " + orbitCenterY)
 			help.append("path")
 				.attr("id","verySimilar")
 				.attr("stroke","none")
 				.attr("fill","none")
-				.attr("d", "M " + (orbitCenterX-offset-mainR) + " " + h/2 + " " + "A " + mainR + " " + mainR + " 0 1 1 " + (orbitCenterX + offset + mainR) + " " + h/2)
+				.attr("d", "M " + (orbitCenterX-offset-mainR) + " " + orbitCenterY + " " + "A " + mainR + " " + mainR + " 0 1 1 " + (orbitCenterX + offset + mainR) + " " + orbitCenterY)
 			help.append("text")
 				.attr("fill","#999999")
 				.attr("class","helpPath")
 				.attr("font-size",distScale/8)
 				.attr("dy",offset-distScale/4)
-				.attr("dominant-baseline","")
 				.append("textPath")
 				.attr("xlink:href","#veryVerySimilar")
 				.attr("startOffset","50%")
@@ -98,7 +105,7 @@
 			help.append("circle")
 				.attr("class","sun")
 				.attr("cx",orbitCenterX)
-				.attr("cy",h/2)
+				.attr("cy",orbitCenterY)
 				.attr("r",mainR)
 				.attr("fill",colors["HELP"])
 			
@@ -106,26 +113,32 @@
 		
 			//load and display neighbor data
 			d3.json("data.json", function(teamAndNeighs) {		
-					
+				
+				
+				
+				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CENTRAL SUN~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+				
 				//Create main circle
 				sun= svg.append("g")
 						.attr("class","sun")	
-				sun.append("clipPath")
+				sun.append("circle")
+					.attr("class","sun")
+					.attr("cx",orbitCenterX)
+					.attr("cy",orbitCenterY)
+					.attr("r",mainR)
+					.attr("fill","none")
+				sun.append("a")
+					.attr("class","link")
+					.append("text");
+				for(i=0;i<5;i++) {
+					sun.append("text")
 						.attr("class","sun")
-						.attr("id","sun")
-						.append("ellipse")
-						.attr("cx",orbitCenterX)
-						.attr("cy",h/2)
-						.attr("rx",mainR)
-						.attr("ry",mainR);
-				sun.append("image")
-						.attr("class","sun")
-						.attr("clip-path","url(#sun)")
-						.attr("x",orbitCenterX-mainR)
-						.attr("y",h/2-mainR)
-						.attr("width",imageSidelen)
-						.attr("height",imageSidelen);
+						.attr("fill","white")
+				}
 				
+				
+				
+				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~HELP BUTTON~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 				
 				//help button
 				helpButton= help.append("g")
@@ -155,8 +168,8 @@
 									unSelectToggles(toggleClicked.length-1);
 									showHelp();
 								});
-				help.append("text") //Add text to each group
-					.attr("class","help")
+				helpButton.append("text") //Add text to each group
+					.attr("class","helpButton")
 					.attr("x", 3*w/4)
 					.attr("y", h/4)
 					.attr("font-size",toggleButtonDiam/4)
@@ -164,15 +177,33 @@
 					.attr("dominant-baseline","central")
 					.attr("fill", "white")
 					.text("HELP");
-					
+				
+				
+				
+				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TOGGLE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+				
 				//create left bar of 2014 playoff teams
-				toggle= svg.selectAll("g.toggle") //Add groups for each toggle button
+				toggle= svg.append("svg")
+							.attr("class","toggle")
+							.attr("x",0)
+							.attr("y",150)
+							.attr("width", toggleGroupWidth)
+							.attr("height", h);
+							
+				toggle.append("text")
+						.attr("fill","black")
+						.text("2014 Playoff Teams")
+						.attr("x", toggleGroupWidth/2)
+						.attr("y", 10)
+						.attr("text-anchor","middle")
+				
+				toggleButton= toggle.selectAll("g.toggleButton") //Add groups for each toggle button
 							.data(teamAndNeighs)
 							.enter()
 							.append("g")
-							.attr("class","toggle");					
-				toggle.append("circle") //Add circle to each group
-					.attr("class","toggle")
+							.attr("class","toggleButton");					
+				toggleButton.append("circle") //Add circle to each group
+					.attr("class","toggleButton")
 					.attr("cx", function(d,i) {
 								if (i<8) {
 									return leftPad + toggleButtonDiam + leftPad + toggleButtonDiam/2;
@@ -182,14 +213,14 @@
 								}
 							})
 					.attr("cy", function(d,i) {
-							return 200+(toggleButtonDiam+10)*(i%8);
+							return 50+(toggleButtonDiam+10)*(i%8);
 						})
 					.attr("r", toggleButtonDiam/2)
 					.attr("fill", function(d) {
 								return (d.team in colors) ? colors[d.team] : "#000000";
 							});	
-				toggle.append("text") //Add text to each group
-					.attr("class","toggle")
+				toggleButton.append("text") //Add text to each group
+					.attr("class","toggleButton")
 					.attr("id","text")
 					.attr("x", function(d,i) {
 								if (i<8) {
@@ -200,14 +231,14 @@
 								}
 							})
 					.attr("y", function(d,i) {
-							return 200+(toggleButtonDiam+10)*(i%8);
+							return 50+(toggleButtonDiam+10)*(i%8);
 						})
 					.attr("font-size",toggleButtonDiam/4)
 					.attr("font-family","sans-serif")
 					.attr("dominant-baseline","central")
 					.attr("fill", "white")
 					.text(function(d) { return d.team; });	
-				toggle.on("mouseover",function() { //Add event handler to each GROUP (not each individual circle/text!)
+				toggleButton.on("mouseover",function() { //Add event handler to each GROUP (not each individual circle/text!)
 									color= d3.select(this).select("circle").attr("fill");
 									d3.select(this).select("circle").attr("stroke",d3.rgb(color).darker(1));
 									d3.select(this).select("circle").attr("stroke-width","5");
@@ -223,7 +254,11 @@
 										setOrbit(d);
 										setZoomText(d);
 									});
-												
+				
+				
+				
+				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NEIGHBORS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+				
 				//create groups for neighbor circles (planets)
 				for (i = 0; i < 16; i++) {
 					var orbGroup= svg.append("g")

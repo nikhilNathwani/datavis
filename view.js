@@ -11,12 +11,13 @@ function hideOrbit() {
 			
 	//Hide sun
 	sunGroup= svg.select("g.sun")
-	sunGroup.select("ellipse")
-			.attr("rx",0)
-			.attr("ry",0);	
+	sunGroup.select("circle")
+			.attr("r",0);
+    sunGroup.selectAll("text")
+            .attr("font-size",0);
 }
 
-function hideHelp(dat){
+function hideHelp(){
     //hide help text on axes
     help.selectAll("text.helpPath")
         .attr("font-size", 0)
@@ -27,10 +28,8 @@ function hideHelp(dat){
     
 	//unhide sun
 	sunGroup= svg.select("g.sun")
-	sunGroup.select("ellipse")
-			.attr("rx",mainR)
-			.attr("ry",mainR);
-	sunGroup.select("image").attr("xlink:href", "pics/"+dat.team+".jpg");
+	sunGroup.select("circle")
+			.attr("r",mainR)
 }
 
 function showHelp() {
@@ -46,17 +45,13 @@ function showHelp() {
         
     //show help text on axes
     help.selectAll("text.helpPath")
-        .attr("font-size", distScale/8)
-    
-	//initialize with help screen
-	
-    
+        .attr("font-size", distScale/8);    
 }
 
 function setOrbit(dat) {
     //Hide help
     if(onHelp) {
-        hideHelp(dat);  
+        hideHelp();  
     }
     onHelp= false;
 	var name= dat.team;
@@ -65,9 +60,36 @@ function setOrbit(dat) {
     x= getDistBounds(neighbors);
     max= x[0];
     min= x[1];
-    
-	//set sun image
-	sun.select("image").attr("xlink:href", "pics/"+name+".jpg");
+
+	//set sun format and text
+    sun.select("circle").attr("fill", colors[name]);
+    labels= ["","Series won: ", "Predicted series wins: ", "Weighted win score: ", "Conference rank: ", "League rank: "];
+    sunTextSizes= [mainR/4,mainR/6,mainR/6,mainR/8,mainR/8,mainR/8];
+    sunData= [name+" \'13-\'14",3,2,2.12,6,9];
+	sun.selectAll("text")
+        .data(sunData)
+        .attr("x",orbitCenterX)
+        .attr("y", function(d,i){
+                s= 0;
+				for(k=0;k<=i;k++) {
+					s += sunTextSizes[k];
+				}
+                return orbitCenterY-mainR+s+35+(i-1)*mainR/12
+            })
+        .attr("font-size",function(d,i){
+                return sunTextSizes[i];
+            })
+        .text(function(d,i) {
+                if(i==0) {
+					d3.select(this.parentNode).attr("xlink:href", "http://www.basketball-reference.com"+"/teams/"+name+"/2014.html");
+					d3.select(this).style("text-decoration","underline")
+                                    .attr("fill","white")
+									.on("click", function() {
+										return;
+									});
+				}
+                return labels[i]+d;    
+            })
 	
     //set properties and event handlers of each circle in orbit
     orbit= svg.selectAll("g.orbit")
@@ -78,7 +100,7 @@ function setOrbit(dat) {
                 return orbitCenterX + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length);
             })
         .attr("cy", function(d,i) {
-                return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
+                return orbitCenterY - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length);
             })
         .attr("r", function(d) {
                 return d.wins*winRadScale+minNeighRad;
@@ -153,7 +175,7 @@ function resize(group) {
 //format the axes
 function formatAxes() {
 	//set radii of axes
-	x= [0,0.5,1]
+	x= [0.5*(1-(offset)/distScale),1]
 	
 	//draw ellipses
     axes.selectAll("ellipse")
@@ -179,7 +201,7 @@ function setZoomText(dat) {
 					return orbitCenterX + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length) - zoomRad*(Math.sqrt(2)/2);
 				})
 			.attr("y", function(d,i) {
-					return h/2 - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length) - zoomRad*(Math.sqrt(2)/2);
+					return orbitCenterY - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length) - zoomRad*(Math.sqrt(2)/2);
 				})
 			.attr("width", function(d) {
 					return 2*zoomRad;
