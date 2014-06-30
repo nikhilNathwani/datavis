@@ -65,8 +65,8 @@ function setOrbit(dat) {
 	//set sun format and text
     sun.select("circle")
         .attr("fill", colors[name]);
-    labels= ["","Series won: ", "Predicted series wins: ", "Weighted win score: ", "Conference rank: ", "League rank: "];
-    sunTextSizes= [mainR/4,mainR/6,mainR/6,mainR/8,mainR/8,mainR/8];
+    labels= ["","Playoff series won: ", "Predicted series wins: ", "Weighted win score: ", "Conference rank: ", "League rank: "];
+    sunTextSizes= [mainR/4,mainR/6,mainR/7,mainR/7,mainR/7,mainR/7];
     sunData= [name+" \'13-\'14",3,2,2.12,6,9];
 	sun.selectAll("text")
         .data(sunData)
@@ -76,7 +76,7 @@ function setOrbit(dat) {
 				for(k=0;k<=i;k++) {
 					s += sunTextSizes[k];
 				}
-                return orbitCenterY-mainR+s+35+(i-1)*mainR/12
+                return orbitCenterY - mainR + s + 5*mainR/12 + (i-1)*mainR/12
             })
         .attr("font-size",function(d,i){
                 return sunTextSizes[i];

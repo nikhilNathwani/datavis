@@ -31,7 +31,7 @@
             var distScale= 150
 			var zoomRad= w/8;
 			var offset= 15;
-			var leftPad= 30;
+			var leftPad= 40;
 			var toggleClicked= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //used in keeping toggle circles highlighted
 			var numAxes= 2;
 			var toggleButtonDiam= 60;
@@ -188,13 +188,26 @@
 							.attr("y",150)
 							.attr("width", toggleGroupWidth)
 							.attr("height", h);
-							
+				
+				togTitleFontSize= h/40;
+				togConfFontSize= h/55;
+				confs= ["WEST","EAST"];
 				toggle.append("text")
-						.attr("fill","black")
+						.attr("fill","#999999")
 						.text("2014 Playoff Teams")
+						.attr("font-size", togTitleFontSize)
 						.attr("x", toggleGroupWidth/2)
-						.attr("y", 10)
+						.attr("y", togTitleFontSize)
 						.attr("text-anchor","middle")
+				for(i=0;i<confs.length;i++){
+				toggle.append("text")
+						.attr("fill","#999999")
+						.text(confs[i])
+						.attr("font-size", togConfFontSize)
+						.attr("x", leftPad + toggleButtonDiam/2 + i*(3*toggleButtonDiam/2))
+						.attr("y", togTitleFontSize + 2*togConfFontSize)
+						.attr("text-anchor","middle")
+				}
 				
 				toggleButton= toggle.selectAll("g.toggleButton") //Add groups for each toggle button
 							.data(teamAndNeighs)
@@ -205,14 +218,14 @@
 					.attr("class","toggleButton")
 					.attr("cx", function(d,i) {
 								if (i<8) {
-									return leftPad + toggleButtonDiam + leftPad + toggleButtonDiam/2;
+									return toggleGroupWidth - leftPad - toggleButtonDiam/2;
 								}
 								else {
 									return leftPad + toggleButtonDiam/2;
 								}
 							})
 					.attr("cy", function(d,i) {
-							return 50+(toggleButtonDiam+10)*(i%8);
+							return 3*togTitleFontSize + 2*togConfFontSize + (toggleButtonDiam+10)*(i%8);
 						})
 					.attr("r", toggleButtonDiam/2)
 					.attr("fill", function(d) {
@@ -223,14 +236,14 @@
 					.attr("id","text")
 					.attr("x", function(d,i) {
 								if (i<8) {
-									return leftPad + toggleButtonDiam + leftPad + toggleButtonDiam/2;
+									return toggleGroupWidth - leftPad - toggleButtonDiam/2;
 								}
 								else {
 									return leftPad + toggleButtonDiam/2;
 								}
 							})
 					.attr("y", function(d,i) {
-							return 50+(toggleButtonDiam+10)*(i%8);
+							return 3*togTitleFontSize + 2*togConfFontSize + (toggleButtonDiam+10)*(i%8);
 						})
 					.attr("font-size",toggleButtonDiam/4)
 					.attr("font-family","sans-serif")
