@@ -54,6 +54,7 @@ function setOrbit(dat) {
         hideHelp();  
     }
     onHelp= false;
+
 	var name= dat.team;
     var neighbors= dat.neighbors;
 	
@@ -62,7 +63,8 @@ function setOrbit(dat) {
     min= x[1];
 
 	//set sun format and text
-    sun.select("circle").attr("fill", colors[name]);
+    sun.select("circle")
+        .attr("fill", colors[name]);
     labels= ["","Series won: ", "Predicted series wins: ", "Weighted win score: ", "Conference rank: ", "League rank: "];
     sunTextSizes= [mainR/4,mainR/6,mainR/6,mainR/8,mainR/8,mainR/8];
     sunData= [name+" \'13-\'14",3,2,2.12,6,9];
