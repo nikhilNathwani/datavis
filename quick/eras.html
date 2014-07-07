@@ -8,14 +8,8 @@
 			text {
 			    font-family: Verdana;
 			}
-			.axisTop path,
-			.axisTop line {
-			    fill: none;
-			    stroke: black;
-			    shape-rendering: crispEdges;
-			}
-			.axisBot path,
-			.axisBot line {
+			#axis path,
+			#axis line {
 			    fill: none;
 			    stroke: black;
 			    shape-rendering: crispEdges;
@@ -32,7 +26,7 @@
 			var rad= 2*rectHeight/9;
 			var togRad= 25;
 			var togPadY= 5;
-			var togPadX= 15;
+			var togPadX= 60;
 			var playerTextPad= 5;
 			var togSpace= 10;
 			var togHeight= 4*(togRad+togPadY) + 60;
@@ -57,13 +51,12 @@
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ REMOVING OLD DATA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 					svg.selectAll("g.player")
 						.remove()
-						
+					svg.select("line")
+						.remove()
 					svg.selectAll("circle.year")
 						.remove()
-						
 					svg.select(".axisTop")
 						.remove()
-					
 					svg.select(".axisBot")
 						.remove()
 					
@@ -94,13 +87,15 @@
 							.attr("x",graphStartX)
 							.attr("y",function(d,i) {numRects += 1; return togHeight + rectHeight*i;})
 							.attr("width",150+3*rad + 2*rad*(2014-firstYear))
-							.attr("height",function(d) {console.log(d,d.player); return d == -1 ? 0 : rectHeight})
+							.attr("height",function(d) {return d == -1 ? 0 : rectHeight})
 							.attr("fill", function(d,i){return i%2==1 ? "#2B6689" : "#347CA5"})//"#F2EFFD"})
-							.on("mouseover",function() {
-								d3.select(this).attr("fill",d3.rgb("#ffeef5").darker(1));
+					
+					//Hover functionality	
+					players.on("mouseover",function() {
+								d3.select(this).select("rect").attr("fill",d3.rgb("#ffeef5").darker(1));
 							})
 							.on("mouseout", function(d,i){
-								d3.select(this).attr("fill", i%2==1 ? "#2B6689" : "#347CA5");//"#F2EFFD");
+								d3.select(this).select("rect").attr("fill", i%2==1 ? "#2B6689" : "#347CA5");//"#F2EFFD");
 							});
 							
 					//Player names
@@ -114,6 +109,28 @@
 								.text(function(d) {return d.player;})
 					
 					
+					
+					
+					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ VERTICAL LINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+					/*xIntercepts= [];
+					for(i=firstYear+(5-firstYear%5); i<=2014; i= i+5) {
+						xIntercepts.push(i);
+					}
+					svg.selectAll("line")
+						.data(xIntercepts)
+						.enter()
+						.append("line")
+						.attr("x1", function(d) {
+								return graphStartX+150+rad+(d-firstYear)*2*rad;
+							})
+						.attr("x2", function(d) {
+								return graphStartX+150+rad+(d-firstYear)*2*rad;
+							})
+						.attr("y1",togHeight)
+						.attr("y2",togHeight+rectHeight*numRects)
+						.attr("stroke","#2B6689")
+						.attr("stroke-width",1.5)*/
+						
 					
 					
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOTS ON GRAPH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -150,8 +167,10 @@
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TWO AXES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 					svg.append("g")
 						.attr("class", "axisTop")
+						.attr("id","axis")
 					svg.append("g")
 						.attr("class", "axisBot")
+						.attr("id","axis")
 					
 					var xScale = d3.scale.linear()
 									.domain([firstYear, 2014])
