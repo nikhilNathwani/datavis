@@ -8,8 +8,14 @@
 			text {
 			    font-family: Verdana;
 			}
-			.axis path,
-			.axis line {
+			.axisTop path,
+			.axisTop line {
+			    fill: none;
+			    stroke: black;
+			    shape-rendering: crispEdges;
+			}
+			.axisBot path,
+			.axisBot line {
 			    fill: none;
 			    stroke: black;
 			    shape-rendering: crispEdges;
@@ -26,12 +32,16 @@
 			var rad= 2*rectHeight/9;
 			var togRad= 25;
 			var togPadY= 5;
+			var togPadX= 15;
 			var playerTextPad= 5;
 			var togSpace= 10;
-			var togHeight= 4*(togRad+togPadY) + 40;
-			var toggleClicked= [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //used in keeping toggle circles highlighted
+			var togHeight= 4*(togRad+togPadY) + 60;
+			var toggleClicked= []; //used in keeping toggle circles highlighted
+			for(i=0;i<30;i++){
+				toggleClicked.push(0);
+			}
 			
-			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BRK":"#000000", "CHA":"#F26532", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#12397F", "NOP": "#091D4A", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAS":"#BEC8C9", "SAC":"#743389", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874"}
+			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BRK":"#000000", "CHA":"#F26532", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#12397F", "NOP": "#091D4A", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAC":"#743389", "SAS":"#BEC8C9", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874"}
 
 			//Create SVG element
 			var svg= d3.select("body")
@@ -42,72 +52,45 @@
 			//load and display win share data
 			d3.json("eras.json", function(playerEras) {
 				
-				//Get max number of players and years for a team's graph
-				var maxPlayers= 0; //41
-				var maxYears= 0; //67
-				for(i=0; i<playerEras.length; i++) {
-					num= playerEras[i].eras.length;
-					if(num > maxPlayers) {
-						maxPlayers= num;
-					}
-					yrs= 2014 - playerEras[i].eras[0].years[0];
-					if(yrs > maxYears) {
-						maxYears= yrs;
-					}
-				}
-				
-				for(i=0; i<maxPlayers; i++){
-					svg.append("g")
-						.attr("class","player")
-				}
-				var playerGroups= svg.selectAll("g.player")
-				
-				playerGroups.append("rect")
-							.attr("class","player")
-					
-				playerGroups.append("text")
-							.attr("class","playerName")
-							.attr("dominant-baseline","central")
-							.attr("fill","white")
-							
-				for(i=0; i<maxYears; i++) {
-					playerGroups.append("circle")
-				}
-				
-				var xScale = d3.scale.linear()
-				var xAxisTop = d3.svg.axis()
-				var xAxisBottom = d3.svg.axis()
-				
-				svg.append("g")
-				    .attr("class", "axisTop")
-					
-				svg.append("g")
-				    .attr("class", "axisBot")
-				
 				function switchTeam(ind) {
-					eras= playerEras[ind].eras;
-					for(i=0; i<(maxPlayers-(eras.length));i++) {
-						eras.push(-1)
-					}
-					circleDummyDat= []
-					for(i=0; i<maxYears;i++) {
-						circleDummyDat.push(-1)
-					}
 					
+					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ REMOVING OLD DATA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+					svg.selectAll("g.player")
+						.remove()
+						
+					svg.selectAll("circle.year")
+						.remove()
+						
+					svg.select(".axisTop")
+						.remove()
+					
+					svg.select(".axisBot")
+						.remove()
+					
+					
+					
+					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DATA INITIALIZATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+					eras= playerEras[ind].eras;
 					firstYear= eras[0].years[0];
 					lastYear= 2014;
-					graphStartX= (15*(2*togRad+togSpace))/2-(150+3*rad+2*rad*(2014-firstYear+1))/2
+					graphStartX= (2*togPadX + 15*(2*togRad+togSpace))/2-(150+3*rad+2*rad*(2014-firstYear+1))/2
 					numRects= 0;
 					confFinals= playerEras[ind].confFinal
 					finalsLoss= playerEras[ind].lossFinal
 					champion= playerEras[ind].champion
 					
+					
+					
+					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TABLE ROWS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 					players= svg.selectAll("g.player")
 								.data(eras)
+								.enter()
+								.append("g")
 								.attr("class","player")
 					
 					//Coloring the rows of the graph
-					players.select("rect.player")
+					players.append("rect")
+							.attr("class","player")
 							.attr("x",graphStartX)
 							.attr("y",function(d,i) {numRects += 1; return togHeight + rectHeight*i;})
 							.attr("width",150+3*rad + 2*rad*(2014-firstYear))
@@ -121,7 +104,7 @@
 							});
 							
 					//Player names
-					players.select("text")
+					players.append("text")
 								.attr("class","playerName")
 								.attr("x",graphStartX + playerTextPad)
 								.attr("y",function(d,i) {return togHeight + rectHeight*i + rectHeight/2;})
@@ -130,21 +113,15 @@
 								.attr("fill","white")
 								.text(function(d) {return d.player;})
 					
-					function dummify(yrs) {
-						dum= []
-						for(i=0; i<maxYears;i++) {
-							dum.push(-1)
-						}
-						for(i=0; i<yrs.length;i++) {
-							dum[yrs[i]-(2014-maxYears)]= yrs[i]
-						}
-						return dum;
-					}
 					
-					//Dots on graph 
+					
+					
+					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOTS ON GRAPH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 					players.selectAll("circle")
-							.data(function(d) {return d==-1 ? circleDummyDat : dummify(d.years);})
-							.attr("class","winShare")
+							.data(function(d) {return d==-1 ? -1 : d.years;})
+							.enter()
+							.append("circle")
+							.attr("class","year")
 							.attr("fill", function(d) {
 								if(confFinals.indexOf(d) != -1) {
 									return "#b87333"
@@ -167,32 +144,40 @@
 									//j gets index of parent group amongst its sibling groups!
 									return togHeight + rectHeight*j + rectHeight/2;
 								})
-								
-					xScale.domain([firstYear, 2014])
-						 .range([0, (2014-firstYear)*2*rad]);
-						 
-					xAxisTop.scale(xScale)
-							.ticks((2014-firstYear)/4)
-							.orient("bottom")
-							.tickFormat(d3.format("d"));
 					
-					xAxisBottom.scale(xScale)
-								.ticks((2014-firstYear)/4)
-								.orient("top")
-								.tickFormat(d3.format("d"));
+					
+					
+					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TWO AXES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+					svg.append("g")
+						.attr("class", "axisTop")
+					svg.append("g")
+						.attr("class", "axisBot")
+					
+					var xScale = d3.scale.linear()
+									.domain([firstYear, 2014])
+									.range([0, (2014-firstYear)*2*rad]);
+					var xAxisTop = d3.svg.axis()
+									.scale(xScale)
+									.ticks((2014-firstYear)/4)
+									.orient("bottom")
+									.tickFormat(d3.format("d"));
+					var xAxisBottom = d3.svg.axis()
+										.scale(xScale)
+										.ticks((2014-firstYear)/4)
+										.orient("top")
+										.tickFormat(d3.format("d"));
 								
-					svg.select("axisTop")
+					svg.select(".axisTop")
 						.attr("transform", "translate("+(graphStartX+150+rad)+"," + (togHeight + numRects*rectHeight) + ")")
-						.call(xAxisTop);
-						
-					svg.select("axisBot")
+						.call(xAxisTop);	
+					svg.select(".axisBot")
 						.attr("transform", "translate("+(graphStartX+150+rad)+"," + togHeight + ")")
 						.call(xAxisBottom);
 				}
 				
 
-				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TOGGLE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-				//Unselect all toggles (and help button) except that at index "except" (help is index 16)
+				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TOGGLE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+				//Unselect all toggles except that at index "except" (help is index 16)
 				function unSelectToggles(except) {
 					var circs= svg.select("svg.toggle")
 								.selectAll("g.toggleButton");
@@ -219,7 +204,7 @@
 				toggleButton.append("circle") //Add circle to each group
 					.attr("class","toggleButton")
 					.attr("cx", function(d,i) {
-								return togRad + (i%15)*(2*togRad+togSpace);
+								return togPadX + togRad + (i%15)*(2*togRad+togSpace);
 							})
 					.attr("cy", function(d,i){
 						return i<15 ? togPadY + togRad : 3*togPadY + 3*togRad
@@ -232,7 +217,7 @@
 					.attr("class","toggleButton")
 					.attr("id","text")
 					.attr("x", function(d,i) {
-								return togRad + (i%15)*(2*togRad+togSpace);
+								return togPadX + togRad + (i%15)*(2*togRad+togSpace);
 							})
 					.attr("y", function(d,i){
 						return i<15 ? togPadY + togRad : 3*togPadY + 3*togRad
