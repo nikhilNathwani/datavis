@@ -1,3 +1,4 @@
+
 import numpy
 import sys
 import time
@@ -143,15 +144,15 @@ def calcEras(team):
 	return sorted(byPlayer.items(), key=lambda tup: tup[1][0])
 
 
-def allDataToJSON(t):
+def allDataToJSON():
 	currentDir= os.getcwd()
 	jsonList= []
 
 	teamNames= getImmediateSubdirectories(currentDir)
 	teamNames.remove("d3")
-	teamNames= [t]
 	for team in teamNames:
 		info= {"team":team, "eras": [], "confFinal": [], "lossFinal": [], "champion": []}
+		print team
 		eras= calcEras(team)
 		for (p,y) in eras:
 			info["eras"].append({"player":p, "years":y})
@@ -168,5 +169,5 @@ def allDataToJSON(t):
 if __name__ == "__main__":
 	start= time.time()
 	teams= ["ATL", "BOS", "BRK", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW", "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN", "NOP", "NYK", "OKC", "ORL", "PHI", "PHO", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"]
-	allDataToJSON(sys.argv[1])
+	allDataToJSON()
 	print "Time taken:", time.time()-start

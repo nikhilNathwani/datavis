@@ -40,31 +40,78 @@
 						.attr("height", h);
 		
 			//load and display win share data
-			d3.json("eras.json", function(playerEras) {		
-				eras= playerEras[0].eras;
-				firstYear= eras[0].years[0];
-				lastYear= 2014;
-				graphStartX= (15*(2*togRad+togSpace))/2-(150+3*rad+2*rad*(2014-firstYear+1))/2
-				numRects= 0;
-				confFinals= playerEras[0].confFinal
-				finalsLoss= playerEras[0].lossFinal
-				champion= playerEras[0].champion
-
-
-				playerGroups= svg.selectAll("g")
-								.data(eras)
-								.enter()
-								.append("g")
-								.attr("class","player")
-								.attr("id",function(d) {return d.player;})
-								.attr("background-color","blue")
-
-				//Coloring the rows of the graph
+			d3.json("eras.json", function(playerEras) {
+				
+				//Get max number of players and years for a team's graph
+				var maxPlayers= 0; //41
+				var maxYears= 0; //67
+				for(i=0; i<playerEras.length; i++) {
+					num= playerEras[i].eras.length;
+					if(num > maxPlayers) {
+						maxPlayers= num;
+					}
+					yrs= 2014 - playerEras[i].eras[0].years[0];
+					if(yrs > maxYears) {
+						maxYears= yrs;
+					}
+				}
+				
+				for(i=0; i<maxPlayers; i++){
+					svg.append("g")
+						.attr("class","player")
+				}
+				var playerGroups= svg.selectAll("g.player")
+				
 				playerGroups.append("rect")
+							.attr("class","player")
+					
+				playerGroups.append("text")
+							.attr("class","playerName")
+							.attr("dominant-baseline","central")
+							.attr("fill","white")
+							
+				for(i=0; i<maxYears; i++) {
+					playerGroups.append("circle")
+				}
+				
+				var xScale = d3.scale.linear()
+				var xAxisTop = d3.svg.axis()
+				var xAxisBottom = d3.svg.axis()
+				
+				svg.append("g")
+				    .attr("class", "axisTop")
+					
+				svg.append("g")
+				    .attr("class", "axisBot")
+				
+				function switchTeam(ind) {
+					eras= playerEras[ind].eras;
+					for(i=0; i<(maxPlayers-(eras.length));i++) {
+						eras.push(-1)
+					}
+					circleDummyDat= []
+					for(i=0; i<maxYears;i++) {
+						circleDummyDat.push(-1)
+					}
+					
+					firstYear= eras[0].years[0];
+					lastYear= 2014;
+					graphStartX= (15*(2*togRad+togSpace))/2-(150+3*rad+2*rad*(2014-firstYear+1))/2
+					numRects= 0;
+					confFinals= playerEras[ind].confFinal
+					finalsLoss= playerEras[ind].lossFinal
+					champion= playerEras[ind].champion
+					
+					players= svg.selectAll("g.player")
+								.data(eras)
+								.attr("class","player")
+					
+					//Coloring the rows of the graph
+					players.select("rect.player")
 							.attr("x",graphStartX)
 							.attr("y",function(d,i) {numRects += 1; return togHeight + rectHeight*i;})
 							.attr("width",150+3*rad + 2*rad*(2014-firstYear))
-							.attr("height",rectHeight)
+							.attr("height",function(d) {console.log(d,d.player); return d == -1 ? 0 : rectHeight})
 							.attr("fill", function(d,i){return i%2==1 ? "#2B6689" : "#347CA5"})//"#F2EFFD"})
 							.on("mouseover",function() {
 								d3.select(this).attr("fill",d3.rgb("#ffeef5").darker(1));
@@ -72,25 +119,32 @@
 							.on("mouseout", function(d,i){
 								d3.select(this).attr("fill", i%2==1 ? "#2B6689" : "#347CA5");//"#F2EFFD");
 							});
-				
-				//Player names
-				playerGroups.append("text")
-							.attr("class","playerName")
-							.attr("id",function(d) {return d.player;})
-							.attr("x",graphStartX + playerTextPad)
-							.attr("y",function(d,i) {return togHeight + rectHeight*i + rectHeight/2;})
-							.attr("dominant-baseline","central")
-							.attr("font-size",3*rectHeight/5)
-							.attr("fill","white")
-							.text(function(d) {return d.player;})
-				
-				//Dots on graph 
-				playerGroups.selectAll("circle")
-							.data(function(d) {return d.years;})
-							.enter()
-							.append("circle")
+							
+					//Player names
+					players.select("text")
+								.attr("class","playerName")
+								.attr("x",graphStartX + playerTextPad)
+								.attr("y",function(d,i) {return togHeight + rectHeight*i + rectHeight/2;})
+								.attr("dominant-baseline","central")
+								.attr("font-size",3*rectHeight/5)
+								.attr("fill","white")
+								.text(function(d) {return d.player;})
+					
+					function dummify(yrs) {
+						dum= []
+						for(i=0; i<maxYears;i++) {
+							dum.push(-1)
+						}
+						for(i=0; i<yrs.length;i++) {
+							dum[yrs[i]-(2014-maxYears)]= yrs[i]
+						}
+						return dum;
+					}
+					
+					//Dots on graph 
+					players.selectAll("circle")
+							.data(function(d) {return d==-1 ? circleDummyDat : dummify(d.years);})
 							.attr("class","winShare")
-							.attr("id",function(d) {return d;})
 							.attr("fill", function(d) {
 								if(confFinals.indexOf(d) != -1) {
 									return "#b87333"
@@ -104,41 +158,37 @@
 								else {
 									return "white"; //"#555555";
 								}
-							})//colors[playerEras[0].team])
-							.attr("r", rad)
+							})
+							.attr("r", function(d){return d == -1 ? 0 : rad})
 							.attr("cx",function(d) {
-								return graphStartX+150+rad+(parseInt(d)-firstYear)*2*rad;
+								return d==-1 ? 0 : graphStartX+150+rad+(parseInt(d)-firstYear)*2*rad;
 							})
 							.attr("cy",function(d,i,j) {
 									//j gets index of parent group amongst its sibling groups!
 									return togHeight + rectHeight*j + rectHeight/2;
 								})
-
-				var xScale = d3.scale.linear()
-                     .domain([firstYear, 2014])
-                     .range([0, (2014-firstYear)*2*rad]);
-
-				var xAxisTop = d3.svg.axis()
-								.scale(xScale)
+								
+					xScale.domain([firstYear, 2014])
+						 .range([0, (2014-firstYear)*2*rad]);
+						 
+					xAxisTop.scale(xScale)
+							.ticks((2014-firstYear)/4)
+							.orient("bottom")
+							.tickFormat(d3.format("d"));
+					
+					xAxisBottom.scale(xScale)
 								.ticks((2014-firstYear)/4)
-								.orient("bottom")
+								.orient("top")
 								.tickFormat(d3.format("d"));
-				
-				var xAxisBottom = d3.svg.axis()
-									.scale(xScale)
-									.ticks((2014-firstYear)/4)
-									.orient("top")
-									.tickFormat(d3.format("d"));
-
-				svg.append("g")
-				    .attr("class", "axis")  //Assign "axis" class
-				    .attr("transform", "translate("+(graphStartX+150+rad)+"," + (togHeight + numRects*rectHeight) + ")")
-				    .call(xAxisTop);
-				
-				svg.append("g")
-				    .attr("class", "axis")  //Assign "axis" class
-				    .attr("transform", "translate("+(graphStartX+150+rad)+"," + togHeight + ")")
-				    .call(xAxisBottom);
+								
+					svg.select("axisTop")
+						.attr("transform", "translate("+(graphStartX+150+rad)+"," + (togHeight + numRects*rectHeight) + ")")
+						.call(xAxisTop);
+						
+					svg.select("axisBot")
+						.attr("transform", "translate("+(graphStartX+150+rad)+"," + togHeight + ")")
+						.call(xAxisBottom);
+				}
 				
 
 				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TOGGLE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -206,6 +256,7 @@
 						.on("click", function(d,i) {
 										unSelectToggles(i);
 										toggleClicked[i]= 1;
+										switchTeam(i);
 									});
 
 			});
