@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <script type="text/javascript" src="d3/d3.js"></script>
+        <style type="text/css">
+			path {
+			    stroke: steelblue;
+			    stroke-width: 2;
+			    fill: none;
+			}
+			 
+			line {
+			    stroke: black;
+			}
+			 
+			text {
+			    font-family: Arial;
+			    font-size: 9pt;
+			}
+		</style>
+    </head>
+    <body>
+        <script type="text/javascript">
+            //Width and height
+            var w= 400;
+            var h= 200;
+			var margin=20;
+
+			var colors= {"ATL":"#D21033", "BOS":"#05854C", "BRK":"#000000", "CHA":"#F26532", "CHH":"#25799A", "CHI":"#D4001F", "CLE":"#9F1425", "DAL":"#006AB5", "DEN":"#4393D1", "DET":"#006BB6", "GSW":"#FFC33C", "HOU":"#CC0000", "IND":"#FFC225", "LAC":"#EE2944", "LAL":"#4A2583", "MEM":"#85A2C6", "MIA":"#B62630", "MIL":"#00330A", "MIN":"#EFEFEF", "NJN":"#002258", "NOH":"#0095CA", "NYK":"#2E66B2", "OKC":"#0075C1", "ORL":"#077ABD", "PHI":"#C7974D", "PHO":"#FF7A31", "POR":"#E1393E", "SAS":"#BEC8C9", "SAC":"#743389", "SEA":"#19542D", "TOR":"#CD1041", "UTA":"#448CCE", "WAS":"#004874"}
+
+			//Create SVG element
+			var svg= d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+
+			var svg2= d3.select("body")
+						.append("svg")
+						.attr("width", 1200)
+						.attr("height", 900)
+						.attr("x",0)
+						.attr("y",300)
+
+			var g = svg.append("g")
+    					.attr("transform", "translate(0, 200)");
+		
+			//load and display win share data
+			d3.json("data.json", function(winSharesByTeam) {		
+				
+				var bos= winSharesByTeam[5]
+				
+				/*svg.append("text")
+					.attr("x",w/2)
+					.attr("y",h/2)
+					.text(bos.team)*/
+				var data= [] 
+				var keys= Object.keys(bos.winShares)
+				for(k=0; k<keys.length; k++) {
+					data.push(bos.winShares[keys[k]].total);
+				}
+
+				y = d3.scale.linear().domain([0, d3.max(data)]).range([0 + margin, h - margin]),
+				x = d3.scale.linear().domain([0, data.length]).range([0 + margin, w - margin])
+
+				console.log(x);
+				console.log(y);
+
+				var line = d3.svg.line()
+						    .x(function(d,i) { return x(i); })
+						    .y(function(d) { return -1 * y(d); })
+
+				g.append("path").attr("d", line(data));
+
+				g.append("svg:line")
+				    .attr("x1", x(0))
+				    .attr("y1", -1 * y(0))
+				    .attr("x2", x(w))
+				    .attr("y2", -1 * y(0))
+				 
+				g.append("svg:line")
+				    .attr("x1", x(0))
+				    .attr("y1", -1 * y(0))
+				    .attr("x2", x(0))
+				    .attr("y2", -1 * y(d3.max(data)))
+
+				g.selectAll(".xLabel")
+				    .data(x.ticks(5))
+				    .enter().append("svg:text")
+				    .attr("class", "xLabel")
+				    .text(String)
+				    .attr("x", function(d) { return x(d) })
+				    .attr("y", 0)
+				    .attr("text-anchor", "middle")
+				 
+				g.selectAll(".yLabel")
+				    .data(y.ticks(4))
+				    .enter().append("svg:text")
+				    .attr("class", "yLabel")
+				    .text(String)
+				    .attr("x", 0)
+				    .attr("y", function(d) { return -1 * y(d) })
+				    .attr("text-anchor", "right")
+				    .attr("dy", 4)
+				
+				svg2.selectAll("rect")
+					.data(Object.keys(bos.winShares))
+					.enter()
+					.append("rect")
+					.attr("x", function(d,i) {
+							return 15+12*i
+						})	
+					.attr("y",function(d) {
+							return 900/2-bos.winShares[d].total*5;
+						})
+					.attr("width",10)
+					.attr("height",function(d) {
+							return bos.winShares[d].total*5;
+						})
+					.attr("fill",colors[bos.team])
+
+
+				
+			});
+        </script>
+    </body>
+</html>
