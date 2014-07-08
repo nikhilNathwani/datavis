@@ -50,13 +50,13 @@
 					
 				function switchTeam(ind) {
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ REMOVING OLD DATA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-					svg.selectAll("g.row")
+					svg.select("g.allRows")
 						.remove()
 					svg.select("line")
 						.remove()
-					svg.selectAll("g.playerSeason")
+					svg.select("g.allPlayerSeasons")
 						.remove()
-					svg.selectAll(".axis")
+					svg.selectAll("#axis")
 						.remove()
 					
 					
@@ -74,7 +74,10 @@
 					
 					
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TABLE ROWS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-					rows= svg.selectAll("g.row")
+					allRows= svg.append("g")
+								.attr("class","allRows")
+								
+					rows= allRows.selectAll("g.row")
 								.data(eras)
 								.enter()
 								.append("g")
@@ -139,14 +142,17 @@
 					
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOTS ON GRAPH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/									
 					
+					allPlayerSeasons= svg.append("g")
+										.attr("class","allPlayerSeasons")
+										
 					rows.each(function(d,i) {
 						//Initialize all groups for dots
-						dots= svg.selectAll("#row1")
-									.data(function() {return d==-1 ? -1 : d.years;})
-									.enter()
-									.append("g")
-									.attr("class","playerSeason")
-									.attr("id",i)
+						dots= allPlayerSeasons.selectAll("#row"+i)
+											.data(function() {return d==-1 ? -1 : d.years;})
+											.enter()
+											.append("g")
+											.attr("class","playerSeason")
+											.attr("id","row"+i)
 
 						//Draw circles
 						dots.append("circle")
