@@ -63,7 +63,7 @@
 					
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DATA INITIALIZATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 					eras= playerEras[ind].eras;
-					firstYear= eras[0].years[0];
+					firstYear= eras[0].stats[0].year;
 					lastYear= 2014;
 					graphStartX= togPadX;//(2*togPadX + 15*(2*togRad+togSpace))/2-(150+3*rad+2*rad*(2014-firstYear+1))/2
 					numRects= 0;
@@ -89,7 +89,7 @@
 							.attr("x",graphStartX)
 							.attr("y",function(d,i) {numRects += 1; return togHeight + rectHeight*i;})
 							.attr("width",150+3*rad + 2*rad*(2014-firstYear))
-							.attr("height",function(d) {return d == -1 ? 0 : rectHeight})
+							.attr("height",rectHeight)
 							.attr("fill", function(d,i){return i%2==1 ? "#2B6689" : "#347CA5"})//"#F2EFFD"})
 							.on("click", function() {
 								//zoom out all zoomed circles 
@@ -115,78 +115,6 @@
 								.attr("fill","white")
 								.text(function(d) {return d.player;})
 					
-					
-					
-					
-					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ VERTICAL LINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-					/*xIntercepts= [];
-					for(i=firstYear+(5-firstYear%5); i<=2014; i= i+5) {
-						xIntercepts.push(i);
-					}
-					svg.selectAll("line")
-						.data(xIntercepts)
-						.enter()
-						.append("line")
-						.attr("x1", function(d) {
-								return graphStartX+150+rad+(d-firstYear)*2*rad;
-							})
-						.attr("x2", function(d) {
-								return graphStartX+150+rad+(d-firstYear)*2*rad;
-							})
-						.attr("y1",togHeight)
-						.attr("y2",togHeight+rectHeight*numRects)
-						.attr("stroke","#2B6689")
-						.attr("stroke-width",1.5)*/
-						
-					
-					
-					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOTS ON GRAPH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/									
-					
-					allPlayerSeasons= svg.append("g")
-										.attr("class","allPlayerSeasons")
-										
-					rows.each(function(d,i) {
-						//Initialize all groups for dots
-						dots= allPlayerSeasons.selectAll("#row"+i)
-											.data(function() {return d==-1 ? -1 : d.years;})
-											.enter()
-											.append("g")
-											.attr("class","playerSeason")
-											.attr("id","row"+i)
-
-						//Draw circles
-						dots.append("circle")
-							.attr("class","year")
-							.attr("fill", function(d) {	return setDotColor(confFinals,finalsLoss,champion,d); })
-							.attr("r", function(d){return d == -1 ? 0 : rad})
-							.attr("cx",function(d) {
-								return d==-1 ? 0 : graphStartX+150+rad+(parseInt(d)-firstYear)*2*rad;
-							})
-							.attr("cy",function() {
-									//j gets index of parent group amongst its sibling groups!
-									return togHeight + rectHeight*i + rectHeight/2;
-								})
-						
-						//Add text
-						dots.append("svg")
-							.attr("svg","text")
-						
-						//Set event handlers for each group
-						dots.on("mouseover",function() {
-									if(d3.select(this).select("circle").attr("r")==rad) {
-										d3.select(this).select("circle").attr("fill","magenta");//"#39FF14");
-									}
-								})
-							.on("mouseout", function(d){
-									if(d3.select(this).select("circle").attr("r")==rad) {
-										d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d))
-									}
-								})
-							.on("click",function(d) {
-									d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d))
-									zoomDot(d3.select(this))
-								});
-					})
 					
 					
 					
@@ -218,6 +146,78 @@
 					svg.select(".axisBot")
 						.attr("transform", "translate("+(graphStartX+150+rad)+"," + togHeight + ")")
 						.call(xAxisBottom);
+						
+						
+						
+					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ VERTICAL LINES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+					/*xIntercepts= [];
+					for(i=firstYear+(5-firstYear%5); i<=2014; i= i+5) {
+						xIntercepts.push(i);
+					}
+					svg.selectAll("line")
+						.data(xIntercepts)
+						.enter()
+						.append("line")
+						.attr("x1", function(d) {
+								return graphStartX+150+rad+(d-firstYear)*2*rad;
+							})
+						.attr("x2", function(d) {
+								return graphStartX+150+rad+(d-firstYear)*2*rad;
+							})
+						.attr("y1",togHeight)
+						.attr("y2",togHeight+rectHeight*numRects)
+						.attr("stroke","#2B6689")
+						.attr("stroke-width",1.5)*/
+						
+					
+					
+					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOTS ON GRAPH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/									
+					
+					allPlayerSeasons= svg.append("g")
+										.attr("class","allPlayerSeasons")
+										
+					rows.each(function(d,i) {
+						//Initialize all groups for dots
+						dots= allPlayerSeasons.selectAll("#row"+i)
+											.data(d.stats)
+											.enter()
+											.append("g")
+											.attr("class",function(e,j){return d.year;})
+											.attr("id","row"+i)
+
+						//Draw circles
+						dots.append("circle")
+							.attr("class","year")
+							.attr("fill", function(d) {	return setDotColor(confFinals,finalsLoss,champion,d.year); })
+							.attr("r", function(d){return d == -1 ? 0 : rad})
+							.attr("cx",function(d) {
+								return d==-1 ? 0 : graphStartX+150+rad+(parseInt(d.year)-firstYear)*2*rad;
+							})
+							.attr("cy",function() {
+									//j gets index of parent group amongst its sibling groups!
+									return togHeight + rectHeight*i + rectHeight/2;
+								})
+						
+						//Add text
+						dots.append("svg")
+							.attr("svg","text")
+						
+						//Set event handlers for each group
+						dots.on("mouseover",function() {
+									if(d3.select(this).select("circle").attr("r")==rad) {
+										d3.select(this).select("circle").attr("fill","magenta");//"#39FF14");
+									}
+								})
+							.on("mouseout", function(d){
+									if(d3.select(this).select("circle").attr("r")==rad) {
+										d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d.year))
+									}
+								})
+							.on("click",function(d) {
+									d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d.year))
+									zoomDot(d3.select(this))
+								});
+					})
 				}
 				
 
