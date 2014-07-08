@@ -52,7 +52,7 @@ function zoomDot(circGroup) {
     else {
         //un-zoom circle (i.e. set radius to original length) and re-hide circle's text
         circ.transition().delay(0).duration(500).attr("r", rad)
-                                                .attr("stroke","none");;
+                                                .attr("stroke","none");
         txt.selectAll("text").transition().delay(200).duration(500).attr("visibility","hidden");
     }
 }
