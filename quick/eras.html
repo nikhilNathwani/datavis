@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <title>D3 Test</title>
         <script type="text/javascript" src="d3/d3.js"></script>
+		<script type="text/javascript" src="util.js"></script>
         <style type="text/css">
 			text {
 			    font-family: Verdana;
@@ -23,8 +24,9 @@
             var h= 1200;
 			var margin=20;
 			var rectHeight= h/50;
-			var rad= 2*rectHeight/9;
+			var rad= rectHeight/3;
 			var togRad= 25;
+			var zoomRad= 120;
 			var togPadY= 5;
 			var togPadX= 60;
 			var playerTextPad= 5;
@@ -42,22 +44,19 @@
 						.append("svg")
 						.attr("width", w)
 						.attr("height", h);
-		
+			  
 			//load and display win share data
 			d3.json("eras.json", function(playerEras) {
-				
-				function switchTeam(ind) {
 					
+				function switchTeam(ind) {
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ REMOVING OLD DATA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-					svg.selectAll("g.player")
+					svg.selectAll("g.row")
 						.remove()
 					svg.select("line")
 						.remove()
-					svg.selectAll("circle.year")
+					svg.selectAll("g.playerSeason")
 						.remove()
-					svg.select(".axisTop")
-						.remove()
-					svg.select(".axisBot")
+					svg.selectAll(".axis")
 						.remove()
 					
 					
@@ -66,7 +65,7 @@
 					eras= playerEras[ind].eras;
 					firstYear= eras[0].years[0];
 					lastYear= 2014;
-					graphStartX= (2*togPadX + 15*(2*togRad+togSpace))/2-(150+3*rad+2*rad*(2014-firstYear+1))/2
+					graphStartX= togPadX;//(2*togPadX + 15*(2*togRad+togSpace))/2-(150+3*rad+2*rad*(2014-firstYear+1))/2
 					numRects= 0;
 					confFinals= playerEras[ind].confFinal
 					finalsLoss= playerEras[ind].lossFinal
@@ -75,23 +74,28 @@
 					
 					
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TABLE ROWS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-					players= svg.selectAll("g.player")
+					rows= svg.selectAll("g.row")
 								.data(eras)
 								.enter()
 								.append("g")
-								.attr("class","player")
+								.attr("class","row")
 					
 					//Coloring the rows of the graph
-					players.append("rect")
-							.attr("class","player")
+					rows.append("rect")
+							.attr("class","row")
 							.attr("x",graphStartX)
 							.attr("y",function(d,i) {numRects += 1; return togHeight + rectHeight*i;})
 							.attr("width",150+3*rad + 2*rad*(2014-firstYear))
 							.attr("height",function(d) {return d == -1 ? 0 : rectHeight})
 							.attr("fill", function(d,i){return i%2==1 ? "#2B6689" : "#347CA5"})//"#F2EFFD"})
+							.on("click", function() {
+								//zoom out all zoomed circles 
+								svg.selectAll("circle.year")
+									.transition().delay(0).duration(500).attr("r", rad);
+							})
 					
 					//Hover functionality	
-					players.on("mouseover",function() {
+					rows.on("mouseover",function() {
 								d3.select(this).select("rect").attr("fill",d3.rgb("#ffeef5").darker(1));
 							})
 							.on("mouseout", function(d,i){
@@ -99,7 +103,7 @@
 							});
 							
 					//Player names
-					players.append("text")
+					rows.append("text")
 								.attr("class","playerName")
 								.attr("x",graphStartX + playerTextPad)
 								.attr("y",function(d,i) {return togHeight + rectHeight*i + rectHeight/2;})
@@ -133,34 +137,50 @@
 						
 					
 					
-					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOTS ON GRAPH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-					players.selectAll("circle")
-							.data(function(d) {return d==-1 ? -1 : d.years;})
-							.enter()
-							.append("circle")
+					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOTS ON GRAPH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/									
+					
+					rows.each(function(d,i) {
+						//Initialize all groups for dots
+						dots= svg.selectAll("#row1")
+									.data(function() {return d==-1 ? -1 : d.years;})
+									.enter()
+									.append("g")
+									.attr("class","playerSeason")
+									.attr("id",i)
+
+						//Draw circles
+						dots.append("circle")
 							.attr("class","year")
-							.attr("fill", function(d) {
-								if(confFinals.indexOf(d) != -1) {
-									return "#b87333"
-								}
-								else if(finalsLoss.indexOf(d) != -1) {
-									return "#c0c0c0"
-								}
-								else if(champion.indexOf(d) != -1) {
-									return "#daa530"
-								}
-								else {
-									return "white"; //"#555555";
-								}
-							})
+							.attr("fill", function(d) {	return setDotColor(confFinals,finalsLoss,champion,d); })
 							.attr("r", function(d){return d == -1 ? 0 : rad})
 							.attr("cx",function(d) {
 								return d==-1 ? 0 : graphStartX+150+rad+(parseInt(d)-firstYear)*2*rad;
 							})
-							.attr("cy",function(d,i,j) {
+							.attr("cy",function() {
 									//j gets index of parent group amongst its sibling groups!
-									return togHeight + rectHeight*j + rectHeight/2;
+									return togHeight + rectHeight*i + rectHeight/2;
 								})
+						
+						//Add text
+						dots.append("svg")
+							.attr("svg","text")
+						
+						//Set event handlers for each group
+						dots.on("mouseover",function() {
+									if(d3.select(this).select("circle").attr("r")==rad) {
+										d3.select(this).select("circle").attr("fill","magenta");//"#39FF14");
+									}
+								})
+							.on("mouseout", function(d){
+									if(d3.select(this).select("circle").attr("r")==rad) {
+										d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d))
+									}
+								})
+							.on("click",function(d) {
+									d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d))
+									zoomDot(d3.select(this))
+								});
+					})
 					
 					
 					

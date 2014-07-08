@@ -143,6 +143,8 @@ def calcEras(team):
 
 	return sorted(byPlayer.items(), key=lambda tup: tup[1][0])
 
+def getPlayerSeasonStats(player,year):
+	pass
 
 def allDataToJSON():
 	currentDir= os.getcwd()
@@ -154,8 +156,10 @@ def allDataToJSON():
 		info= {"team":team, "eras": [], "confFinal": [], "lossFinal": [], "champion": []}
 		print team
 		eras= calcEras(team)
-		for (p,y) in eras:
-			info["eras"].append({"player":p, "years":y})
+		for (p,yrs) in eras:
+			info["eras"].append({"player":p, "seasons":[])
+			for y in yrs:
+				info["eras"][-1]["seasons"].append(getPlayerSeasonStats(p,y))
 		cf,lf,c= getSuccessfulYears(team)
 		info["confFinal"]= cf
 		info["lossFinal"]= lf
