@@ -49,16 +49,16 @@ def getTeamYearsFromFolder(team):
 
 '''~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  csv read/write  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
 
-def csvToTuples(fn):
+def csvToLists(fn):
 	rows= []
 	with open(fn) as f:
 		for line in f:
 			arr= [elem.strip() for elem in line.split(',')]
-			rows += [tuple(arr)]
+			rows.append(arr) 
 	return rows 
 
-def tuplesToCSV(tuples,fn):
+def listsToCSV(lists,fn):
 	csv_file= open(fn,'w+')
 	csv_wr = csv.writer(csv_file)
-	for tup in tuples:
-		csv_wr.writerow(list(tup))
+	for row in lists:
+		csv_wr.writerow(row)

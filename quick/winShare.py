@@ -14,15 +14,59 @@ def scrapeWinShares(url):
 	soup= grabSiteData("http://www.basketball-reference.com"+url)
 	advancedTable= soup.find('div', {"id" : "all_advanced"}).find('tbody')
 	rows= advancedTable.findAll("tr")
-	tups= []
+	stats= {}
+	totalWS= 0
+	totalSalary= 0
+
+	#add win shares to dicts
 	for row in rows: 
 		tds= row.findAll("td")
 		player_name= tds[1].find("a").text.encode("ascii","ignore")
 
 		if tds[-2].text != "":
 			win_shares= float(tds[-2].text)
-			tups += [(player_name,win_shares)]
-	return tups
+			totalWS += win_shares
+			stats[player_name]= [win_shares]
+
+	#add win share percentages to dicts
+	for p in stats:
+		ws= stats[p][-1]
+		stats[p].append((ws/totalWS)*100)
+
+	#add salaries to dicts
+	salaryTable= soup.find('div', {"id" : "all_salaries"}).find('tbody')
+	if salaryTable!=None:	
+		rows= salaryTable.findAll("tr")
+		for row in rows:
+			player= row.find("a").text.encode("ascii","ignore")
+			if player in stats:
+				salary= row.findAll("td")[-1].text
+				salary= int(salary.replace(",","").replace("$",""))
+				stats[player].append(salary)
+				totalSalary += salary
+
+		#add salary percentages to dicts
+		totalSalary= float(totalSalary)
+		for p in stats:
+			sal= stats[p][-1]
+			if len(stats[p])>3:
+				sal= 0
+				for x in stats[p][2:]:
+					sal += x
+				stats[p]= stats[p][:2]+[sal]
+			if len(stats[p])==3:
+				stats[p].append((sal/totalSalary)*100)
+
+	else:
+		print yearFromURL(url)
+
+	#convert stats dict to list of lists
+	stats= [[x]+y for x,y in stats.items()]
+	#print totalWS, totalSalary
+	#for s in stats:
+	#	print s
+	return stats
+
 
 #returns list of urls for the years in which given team existed
 def getURLsOfTeam(team):
@@ -62,24 +106,24 @@ def recordWinSharesForTeam(team):
 	currentDir= os.getcwd()
 	urls= getURLsOfTeam(team)
 	for url in urls:
-		tups= scrapeWinShares(url)
+		stats= scrapeWinShares(url)
 
 		#create team direc if it doesn't exist
 		if not os.path.exists(currentDir+'/'+team):
 			print "Making new directory"
 			os.makedirs(currentDir+'/'+team)
 
-		tuplesToCSV(tups,currentDir+"/"+team+'/'+urlToFilename(url))
+		listsToCSV(stats,currentDir+"/"+team+'/'+urlToFilename(url))
 		print "Done year",url
 
 def getWinSharesForTeam(team,year):
 	currentDir= os.getcwd()
-	tups= csvToTuples(currentDir+'/'+team+'/'+str(year)+'.csv')
-	return tups
+	lists= csvToLists(currentDir+'/'+team+'/'+str(year)+'.csv')
+	return lists
 
 def getBestWinSharePlayers(fn):
 	currentDir= os.getcwd()
-	playerTups= csvToTuples(fn)
+	playerTups= csvToLists(fn)
 
 	total= 0
 	for (p,ws) in playerTups:
@@ -174,5 +218,5 @@ def allDataToJSON():
 if __name__ == "__main__":
 	start= time.time()
 	teams= ["ATL", "BOS", "BRK", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW", "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN", "NOP", "NYK", "OKC", "ORL", "PHI", "PHO", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"]
-	allDataToJSON()
+	recordWinSharesForTeam("ATL")
 	print "Time taken:", time.time()-start
