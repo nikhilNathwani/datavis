@@ -95,6 +95,7 @@
 								//zoom out all zoomed circles 
 								svg.selectAll("circle.year")
 									.transition().delay(0).duration(500).attr("r", rad);
+								svg.selectAll("text.data").attr("visibility","hidden")
 							})
 					
 					//Hover functionality	
@@ -189,9 +190,9 @@
 						dots.append("circle")
 							.attr("class","year")
 							.attr("fill", function(d) {	return setDotColor(confFinals,finalsLoss,champion,d.year); })
-							.attr("r", function(d){return d == -1 ? 0 : rad})
+							.attr("r", rad)
 							.attr("cx",function(d) {
-								return d==-1 ? 0 : graphStartX+150+rad+(parseInt(d.year)-firstYear)*2*rad;
+								return graphStartX+150+rad+(parseInt(d.year)-firstYear)*2*rad;
 							})
 							.attr("cy",function() {
 									//j gets index of parent group amongst its sibling groups!
@@ -199,8 +200,11 @@
 								})
 						
 						//Add text
-						dots.append("svg")
-							.attr("svg","text")
+						playerData= dots.append("svg")
+										.attr("svg","text")
+						for(i=0;i<2;i++){
+							playerData.append("text")
+						}
 						
 						//Set event handlers for each group
 						dots.on("mouseover",function() {
@@ -210,12 +214,13 @@
 								})
 							.on("mouseout", function(d){
 									if(d3.select(this).select("circle").attr("r")==rad) {
-										d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d.year))
+										d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d.year));
 									}
 								})
 							.on("click",function(d) {
-									d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d.year))
-									zoomDot(d3.select(this))
+									d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d.year));
+									zoomDot(d3.select(this));
+									setZoomText(d3.select(this),d);
 								});
 					})
 				}

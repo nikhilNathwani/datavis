@@ -159,7 +159,8 @@ def allDataToJSON():
 		for (p,yrs) in eras:
 			info["eras"].append({"player":p, "stats":[]})
 			for y in yrs:
-				info["eras"][-1]["stats"].append({"name":p, "year":y})
+				season= '\''+str(y-1)[-2:]+'-\''+str(y)[-2:]
+				info["eras"][-1]["stats"].append({"name":p, "year":y, "season":season})
 		cf,lf,c= getSuccessfulYears(team)
 		info["confFinal"]= cf
 		info["lossFinal"]= lf

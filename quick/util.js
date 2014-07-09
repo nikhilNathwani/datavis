@@ -60,18 +60,19 @@ function zoomDot(circGroup) {
     }
 }
 
-function setZoomText(dat) {
-    var name= dat.team;
-    var neighbors= dat.neighbors;
+function setZoomText(dot,stats) {
+    var name= stats.name;
+    var year= stats.year;
+    var season= stats.season;
 
     //add text to each group, set properties and event handler
-    texts= orbit.select("svg")
+    texts= dot.select("svg")
             .attr("class","text")
-            .attr("x", function(d,i) {
-                    return orbitCenterX + (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.cos(2*i*Math.PI/neighbors.length) - zoomRad*(Math.sqrt(2)/2);
+            .attr("x", function() {
+                    return d3.select(this.parentNode).select("circle").attr("cx")-zoomRad
                 })
-            .attr("y", function(d,i) {
-                    return orbitCenterY - (offset + mainR + ((d.dist-min)/(max-min))*distScale)*Math.sin(2*i*Math.PI/neighbors.length) - zoomRad*(Math.sqrt(2)/2);
+            .attr("y", function() {
+                    return d3.select(this.parentNode).select("circle").attr("cy") - (Math.sqrt(2)*zoomRad)/2;
                 })
             .attr("width", function(d) {
                     return 2*zoomRad;
@@ -80,36 +81,38 @@ function setZoomText(dat) {
                     return 2*zoomRad;
                 });
              
-    sizes= [zoomRad/6,zoomRad/8,zoomRad/8,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12,zoomRad/12]           
+    sizes= [zoomRad/6,zoomRad/8]           
     texts.selectAll("text")
-        .data(function(d){
-                return teamText(d);
-            })
-        .attr("x", zoomRad*Math.sqrt(2)/2)
-        .attr("y", function(d,i){
-                s= 0;
-                for(k=0;k<=i;k++) {
-                    s += sizes[k];
-                }
-                return s+(i-1)*zoomRad/12;
-            })
+        .attr("class","data")
+        .data([name,"Season: "+season])
+        .attr("x", zoomRad)
+        .attr("y", function(d,i){return zoomRad/8 + i*(sizes[i]+zoomRad/8)})
         .attr("id","text")
         .attr("font-size",function(d,i){return sizes[i];})
+        .attr("text-anchor","middle")
         .attr("dominant-baseline","hanging")
-        .attr("fill", "white")
-        .attr("visibility","hidden")
+        .attr("fill", function() {
+            color= d3.select(this.parentNode.parentNode).select("circle").attr("fill");
+            if (color=="white") {
+                return "#2B6689"  
+            }
+            else {
+                return "white";
+            }
+        })
         .moveToFront()
-        .text(function(d,i){
-                if(i==0) {
-                    d3.select(this.parentNode).attr("xlink:href", "http://www.basketball-reference.com"+d[1]);
-                    d3.select(this).style("text-decoration","underline")
-                                    .on("click", function() {
-                                        return;
-                                    });
-                    return d[0];
-                }
-                else {
-                    return d;
-                }
-            })
+        .text(function(d) {return d;})
+        //.text(function(d,i){
+        //        if(i==0) {
+        //            d3.select(this.parentNode).attr("xlink:href", "http://www.basketball-reference.com"+d[1]);
+        //            d3.select(this).style("text-decoration","underline")
+        //                            .on("click", function() {
+        //                                return;
+        //                            });
+        //            return d[0];
+        //        }
+        //        else {
+        //            return d;
+        //        }
+        //    })
 }
