@@ -60,16 +60,45 @@ function zoomDot(circGroup) {
     }
 }
 
+function threeDigits(x) {
+    if(x>=100){
+        return ""+x
+    }
+    else if(x>=10){
+        return "0"+x;
+    }
+    else {
+        return "00"+x;   
+    }
+}
+
+function formatAsMoney(amt) {
+    mil= Math.floor(amt/1000000)
+    if(mil!=0) {
+        return "$"+mil+","+threeDigits(Math.floor((amt%1000000)/1000))+","+threeDigits(amt%1000);
+    }
+    else {
+        return "$"+Math.floor(amt/1000)+","+threeDigits(amt%1000);
+    }
+}
+
 function setZoomText(dot,stats) {
     var name= stats.name;
     var year= stats.year;
     var season= stats.season;
-
+    var winShares= stats.winShares;
+    var winSharePct= Math.round(stats.winSharePct*100)/100;
+    var allStats= [name,"Season: "+season,"Win Shares: "+winShares,"WS %: "+winSharePct]
+    if('salary' in stats) {
+        allStats.push("Salary: "+formatAsMoney(stats.salary))
+        allStats.push("Salary %: "+Math.round(stats.salaryPct*100)/100)
+    }
+    
     //add text to each group, set properties and event handler
     texts= dot.select("svg")
             .attr("class","text")
             .attr("x", function() {
-                    return d3.select(this.parentNode).select("circle").attr("cx")-zoomRad
+                    return d3.select(this.parentNode).select("circle").attr("cx") - (Math.sqrt(2)*zoomRad)/2;
                 })
             .attr("y", function() {
                     return d3.select(this.parentNode).select("circle").attr("cy") - (Math.sqrt(2)*zoomRad)/2;
@@ -84,13 +113,22 @@ function setZoomText(dot,stats) {
     sizes= [zoomRad/6,zoomRad/8]           
     texts.selectAll("text")
         .attr("class","data")
-        .data([name,"Season: "+season])
-        .attr("x", zoomRad)
-        .attr("y", function(d,i){return zoomRad/8 + i*(sizes[i]+zoomRad/8)})
+        .data(allStats)
+        .attr("x", (Math.sqrt(2)*zoomRad)/2)
+        .attr("y", function(d,i){
+            if(i==0) {
+                return parseInt(d3.select(this.parentNode).attr("width"))/8;
+            }
+            else {
+                y0= parseInt(d3.select(this.parentNode).attr("width"))/8 + sizes[1];
+                yFinal= Math.sqrt(2)*parseInt(d3.select(this.parentNode).attr("width")/2) - sizes[1];
+                return y0 + (i*(yFinal-y0))/(allStats.length-1)
+            }
+        })
         .attr("id","text")
-        .attr("font-size",function(d,i){return sizes[i];})
+        .attr("font-size",function(d,i){return i==0 ? sizes[0] : sizes[1];})
         .attr("text-anchor","middle")
-        .attr("dominant-baseline","hanging")
+        .attr("dominant-baseline","central")
         .attr("fill", function() {
             color= d3.select(this.parentNode.parentNode).select("circle").attr("fill");
             if (color=="white") {
