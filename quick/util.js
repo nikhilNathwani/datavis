@@ -119,18 +119,19 @@ function setZoomText(dot,stats) {
         .attr("x", (Math.sqrt(2)*zoomRad)/2)
         .attr("y", function(d,i){
             if(i==0) {
-                return parseInt(d3.select(this.parentNode).attr("width"))/8;
+                return parseInt(d3.select(this.parentNode).attr("width"))/6;
             }
             else {
-                y0= parseInt(d3.select(this.parentNode).attr("width"))/8 + sizes[1];
-                yFinal= Math.sqrt(2)*parseInt(d3.select(this.parentNode).attr("width")/2) - sizes[1];
+                start= parseInt(d3.select(this.parentNode).attr("width"))/6;
+                y0= allStats.length==4 ? start : start + sizes[1];
+                yFinal= Math.sqrt(2)*parseInt(d3.select(this.parentNode).attr("width")/2);// - sizes[1];
                 return y0 + (i*(yFinal-y0))/(allStats.length-1)
             }
         })
         .attr("id","text")
-        .attr("font-size",function(d,i){return i==0 ? sizes[0] : sizes[1];})
+        .attr("font-size",function(d,i){return i==0 ? Math.min(2*zoomRad/(d.length),sizes[0]) : sizes[1];})
         .attr("text-anchor","middle")
-        .attr("dominant-baseline","central")
+        .attr("dominant-baseline","bottom")
         .attr("fill", function() {
             color= d3.select(this.parentNode.parentNode).select("circle").attr("fill");
             if (color=="white") {
