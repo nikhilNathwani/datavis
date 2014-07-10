@@ -202,10 +202,10 @@ def calcEras(team):
 			print yr, playerStats, player,stats
 			info= {"name":player,"year":yr,"season":season}
 			info["winShares"]= stats[0]
-			info["winShare%"]= stats[1]
+			info["winSharePct"]= stats[1]
 			if len(stats)>2:
 				info["salary"]= stats[2]
-				info["salary%"]= stats[3]
+				info["salaryPct"]= stats[3]
 			byPlayer[player]= byPlayer.get(player,[]) + [info]
 	'''	if playerList==currPlayers:
 			yearSpan.append(yr)
