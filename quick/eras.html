@@ -94,7 +94,8 @@
 							.on("click", function() {
 								//zoom out all zoomed circles 
 								svg.selectAll("circle.year")
-									.transition().delay(0).duration(500).attr("r", rad);
+									.transition().delay(0).duration(500).attr("r", rad)
+																		.attr("stroke", "none");;
 								svg.selectAll("text.data").attr("visibility","hidden")
 							})
 					
