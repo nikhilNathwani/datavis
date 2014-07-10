@@ -31,10 +31,12 @@ function zoomDot(circGroup) {
         
         //zoom out all zoomed circles 
         svg.selectAll("circle.year")
-            .transition().delay(0).duration(500).attr("r", rad);
+            .transition().delay(0).duration(500)
+            .attr("r", rad)
+            .attr("stroke","none");
             
         //hide all visible circle text
-        svg.selectAll("svg.text").selectAll("text")
+        svg.selectAll("svg.text")//.selectAll("text")
             .transition().delay(200).duration(500).attr("visibility","hidden");
         
         //move this group's circle and text to front
@@ -47,7 +49,7 @@ function zoomDot(circGroup) {
                                                     return d3.select(this).attr("fill")=="white" ?
                                                         "#2B6689" : "none";
                                                 });
-        txt.selectAll("text").transition().delay(200).duration(500).attr("visibility","visible");
+        txt.transition().delay(250).duration(500).attr("visibility","visible");
         txt.moveToFront()
     }
     
@@ -56,7 +58,7 @@ function zoomDot(circGroup) {
         //un-zoom circle (i.e. set radius to original length) and re-hide circle's text
         circ.transition().delay(0).duration(500).attr("r", rad)
                                                 .attr("stroke","none");
-        txt.selectAll("text").transition().delay(200).duration(500).attr("visibility","hidden");
+        txt.transition().delay(200).duration(500).attr("visibility","hidden");
     }
 }
 
