@@ -124,12 +124,12 @@ function setZoomText(dot,stats) {
             else {
                 start= parseInt(d3.select(this.parentNode).attr("width"))/6;
                 y0= allStats.length==4 ? start : start + sizes[1];
-                yFinal= Math.sqrt(2)*parseInt(d3.select(this.parentNode).attr("width")/2);// - sizes[1];
+                yFinal= Math.sqrt(2)*parseInt(d3.select(this.parentNode).attr("width")/2);
                 return y0 + (i*(yFinal-y0))/(allStats.length-1)
             }
         })
         .attr("id","text")
-        .attr("font-size",function(d,i){return i==0 ? Math.min(2*zoomRad/(d.length),sizes[0]) : sizes[1];})
+        .attr("font-size",function(d,i){return i==0 ? Math.min(2.4*zoomRad/(d.length),sizes[0]) : sizes[1];})
         .attr("text-anchor","middle")
         .attr("dominant-baseline","bottom")
         .attr("fill", function() {
