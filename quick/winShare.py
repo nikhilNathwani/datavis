@@ -21,12 +21,14 @@ def scrapeWinShares(url):
 	#add win shares to dicts
 	for row in rows: 
 		tds= row.findAll("td")
-		player_name= tds[1].find("a").text.encode("ascii","ignore")
+		a= tds[1].find("a")
+		link= a['href']
+		player_name= a.text.encode("ascii","ignore")
 
 		if tds[-2].text != "":
 			win_shares= float(tds[-2].text)
 			totalWS += win_shares
-			stats[player_name]= [win_shares]
+			stats[player_name]= [link,url,win_shares]
 
 	#add win share percentages to dicts
 	for p in stats:
@@ -51,12 +53,12 @@ def scrapeWinShares(url):
 		totalSalary= float(totalSalary)
 		for p in stats:
 			sal= stats[p][-1]
-			if len(stats[p])>3:
+			if len(stats[p])>5:
 				sal= 0
-				for x in stats[p][2:]:
+				for x in stats[p][4:]:
 					sal += x
-				stats[p]= stats[p][:2]+[sal]
-			if len(stats[p])==3:
+				stats[p]= stats[p][:4]+[sal]
+			if len(stats[p])==5:
 				stats[p].append((sal/totalSalary)*100)
 
 	#convert stats dict to list of lists
@@ -150,7 +152,7 @@ def getStatLine(team,player,year):
 	for lst in lists:
 		if lst[0]==player:
 			return (lst[0],lst[1:])
-	return (player,[-1,-1,-1,-1])
+	return (player,[-1,-1,-1,-1,-1,-1])
 
 def calcEras(team):
 	currentDir= os.getcwd()
@@ -201,11 +203,13 @@ def calcEras(team):
 			season= '\''+str(yr-1)[-2:]+'-\''+str(yr)[-2:]
 			print yr, playerStats, player,stats
 			info= {"name":player,"year":yr,"season":season}
-			info["winShares"]= stats[0]
-			info["winSharePct"]= stats[1]
+			info["playerURL"]= stats[0]
+			info["teamURL"]= stats[1]
+			info["winShares"]= stats[2]
+			info["winSharePct"]= stats[3]
 			if len(stats)>2:
-				info["salary"]= stats[2]
-				info["salaryPct"]= stats[3]
+				info["salary"]= stats[4]
+				info["salaryPct"]= stats[5]
 			byPlayer[player]= byPlayer.get(player,[]) + [info]
 	'''	if playerList==currPlayers:
 			yearSpan.append(yr)
@@ -248,5 +252,5 @@ def allDataToJSON():
 if __name__ == "__main__":
 	start= time.time()
 	teams= ["ATL", "BOS", "BRK", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW", "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN", "NOP", "NYK", "OKC", "ORL", "PHI", "PHO", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"]
-	allDataToJSON()
+	recordWinSharesForTeam(teams[1:])
 	print "Time taken:", time.time()-start
