@@ -47,7 +47,7 @@
 			  
 			//load and display win share data
 			d3.json("eras.json", function(playerEras) {
-					
+				
 				function switchTeam(ind) {
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ REMOVING OLD DATA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 					svg.select("g.allRows")
@@ -96,7 +96,8 @@
 								svg.selectAll("circle.year")
 									.transition().delay(0).duration(500).attr("r", rad)
 																		.attr("stroke", "none");;
-								svg.selectAll("svg.text").attr("visibility","hidden")
+								svg.selectAll("svg.text")//.selectAll("text")
+									.transition().delay(200).duration(500).attr("visibility","hidden");
 							})
 					
 					//Hover functionality	
@@ -179,6 +180,7 @@
 										.attr("class","allPlayerSeasons")
 										
 					rows.each(function(d,i) {
+						thisRow= this;
 						//Initialize all groups for dots
 						dots= allPlayerSeasons.selectAll("#row"+i)
 											.data(d.stats)
@@ -204,8 +206,20 @@
 						playerData= dots.append("svg")
 										.attr("svg","text")
 										.attr("visibility","hidden")
-						for(i=0;i<6;i++){
+										
+						playerData.append("a")
+								  .attr("class","playerURL")
+								  .append("text")
+								  .attr("class","playerStat")
+								  
+						playerData.append("a")
+									.attr("class","teamURL")
+									.append("text")
+									.attr("class","teamURL")
+									
+						for(i=0;i<5;i++){
 							playerData.append("text")
+										.attr("class","playerStat")
 						}
 						
 						//Set event handlers for each group
@@ -218,6 +232,7 @@
 									if(d3.select(this).select("circle").attr("r")==rad) {
 										d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d.year));
 									}
+									d3.select(thisRow).select("rect").attr("fill", i%2==1 ? "#2B6689" : "#347CA5");
 								})
 							.on("click",function(d) {
 									d3.select(this).select("circle").attr("fill", setDotColor(confFinals,finalsLoss,champion,d.year));

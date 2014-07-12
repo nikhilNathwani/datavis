@@ -85,12 +85,17 @@ function formatAsMoney(amt) {
 }
 
 function setZoomText(dot,stats) {
+    var sizes= [zoomRad/6,zoomRad/8]
     var name= stats.name;
+    var playerURL= stats.playerURL;
     var year= stats.year;
     var season= stats.season;
+    var teamURL= stats.teamURL;
+    var seasonX= ((Math.sqrt(2)*zoomRad)/2) + (sizes[1]*0.5); //coordinates for teamURL
+    var seasonY= 0;
     var winShares= stats.winShares;
     var winSharePct= Math.round(stats.winSharePct*100)/100;
-    var allStats= [name,"Season: "+season,"Win Shares: "+winShares,"WS %: "+winSharePct]
+    var allStats= [name,"Season:        ","Win Shares: "+winShares,"WS %: "+winSharePct]
     if('salary' in stats) {
         allStats.push("Salary: "+formatAsMoney(stats.salary))
         allStats.push("Salary %: "+Math.round(stats.salaryPct*100)/100)
@@ -111,20 +116,25 @@ function setZoomText(dot,stats) {
             .attr("height", function(d) {
                     return 2*zoomRad;
                 });
-             
-    sizes= [zoomRad/6,zoomRad/8]           
-    texts.selectAll("text")
+                        
+    texts.selectAll("text.playerStat")
         .attr("class","data")
         .data(allStats)
-        .attr("x", (Math.sqrt(2)*zoomRad)/2)
+        .attr("x", function(d,i) {
+            if(i==1){
+                return ((Math.sqrt(2)*zoomRad)/2)- 2*sizes[i];
+            }
+            return (Math.sqrt(2)*zoomRad)/2;
+        })
         .attr("y", function(d,i){
             if(i==0) {
-                return parseInt(d3.select(this.parentNode).attr("width"))/6;
+                return parseInt(d3.select(this.parentNode.parentNode).attr("width"))/6;
             }
             else {
                 start= parseInt(d3.select(this.parentNode).attr("width"))/6;
                 y0= allStats.length==4 ? start : start + sizes[1];
                 yFinal= Math.sqrt(2)*parseInt(d3.select(this.parentNode).attr("width")/2);
+                if (i==1){seasonY= y0 + (i*(yFinal-y0))/(allStats.length-1);}
                 return y0 + (i*(yFinal-y0))/(allStats.length-1)
             }
         })
@@ -132,8 +142,14 @@ function setZoomText(dot,stats) {
         .attr("font-size",function(d,i){return i==0 ? Math.min(2.4*zoomRad/(d.length),sizes[0]) : sizes[1];})
         .attr("text-anchor","middle")
         .attr("dominant-baseline","bottom")
-        .attr("fill", function() {
-            color= d3.select(this.parentNode.parentNode).select("circle").attr("fill");
+        .attr("fill", function(d,i) {
+            if(i==0) {
+                parent= this.parentNode.parentNode.parentNode
+            }
+            else {
+                parent= this.parentNode.parentNode
+            }
+            color= d3.select(parent).select("circle").attr("fill");
             if (color=="white") {
                 return "#2B6689"  
             }
@@ -142,18 +158,43 @@ function setZoomText(dot,stats) {
             }
         })
         .moveToFront()
-        .text(function(d) {return d;})
-        //.text(function(d,i){
-        //        if(i==0) {
-        //            d3.select(this.parentNode).attr("xlink:href", "http://www.basketball-reference.com"+d[1]);
-        //            d3.select(this).style("text-decoration","underline")
-        //                            .on("click", function() {
-        //                                return;
-        //                            });
-        //            return d[0];
-        //        }
-        //        else {
-        //            return d;
-        //        }
-        //    })
+        .text(function(d,i) {
+            if(i==0) {
+					d3.select(this.parentNode).attr("xlink:href", "http://www.basketball-reference.com"+playerURL)
+                                            .attr("target","_blank")
+                                            .on("click",function(){
+                                                 d3.event.stopPropagation();
+                                            });
+					d3.select(this).style("text-decoration","underline");
+			}
+            return d;
+        
+        })
+        
+    seasonLink= dot.select("a.teamURL")
+                    .attr("xlink:href", "http://www.basketball-reference.com"+teamURL)
+                    .attr("target","_blank")
+                    .on("click",function(){
+                            d3.event.stopPropagation();
+                        })
+    seasonLink.select("text")
+            .style("text-decoration","underline")
+            .attr("x",seasonX)
+            .attr("y",seasonY)
+            .attr("id","text")
+            .attr("font-size", sizes[1])
+            .attr("text-anchor","start")
+            .attr("dominant-baseline","bottom")
+            .attr("fill", function() {
+                parent= this.parentNode.parentNode.parentNode;
+                color= d3.select(parent).select("circle").attr("fill");
+                if (color=="white") {
+                    return "#2B6689"  
+                }
+                else {
+                    return "white";
+                }
+            })
+            .moveToFront()
+            .text(season)
 }

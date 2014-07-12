@@ -129,14 +129,14 @@ def getBestWinSharePlayers(fn):
 
 	total= 0
 	for x in playerLists:
-		total += float(x[1])
+		total += float(x[3])
 
-	bestToWorst= sorted(playerLists, key=lambda tup: float(tup[1]), reverse=True)
+	bestToWorst= sorted(playerLists, key=lambda tup: float(tup[3]), reverse=True)
 	bestPlayers= {"all":total}	
 	tally= 0
 	for x in bestToWorst:
-		tally += float(x[1]) 
-		bestPlayers[x[0]]= [float(elem) for elem in x[1:]]
+		tally += float(x[3]) 
+		bestPlayers[x[0]]= x[1:3]+[float(elem) for elem in x[3:]]
 		if tally >= total/2:
 			return bestPlayers
 
@@ -169,7 +169,7 @@ def calcEras(team):
 		#bests= {player : [stats]}
 		bests= getBestWinSharePlayers(currentDir + '/' + team + '/' + urlToFilename(url))
 		bests= [(k,v) for (k,v) in bests.iteritems() if k != "all"]
-		bests= sorted(bests, key=lambda tup: float(tup[1][0]), reverse=True)
+		bests= sorted(bests, key=lambda tup: float(tup[1][3]), reverse=True)
 
 		#best is now a list of (player, [stats]) tuples sorted by win shares
 
@@ -198,7 +198,7 @@ def calcEras(team):
 	#currPlayers= alphabetically sorted list of players in first year
 	#currPlayers= sorted(list(set([p for (p,ws) in eras[0][1]])))
 	for yr,playerStats in eras:
-		print playerStats
+		#print playerStats
 		for player,stats in playerStats:
 			season= '\''+str(yr-1)[-2:]+'-\''+str(yr)[-2:]
 			print yr, playerStats, player,stats
@@ -207,7 +207,7 @@ def calcEras(team):
 			info["teamURL"]= stats[1]
 			info["winShares"]= stats[2]
 			info["winSharePct"]= stats[3]
-			if len(stats)>2:
+			if len(stats)>4:
 				info["salary"]= stats[4]
 				info["salaryPct"]= stats[5]
 			byPlayer[player]= byPlayer.get(player,[]) + [info]
@@ -252,5 +252,5 @@ def allDataToJSON():
 if __name__ == "__main__":
 	start= time.time()
 	teams= ["ATL", "BOS", "BRK", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW", "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN", "NOP", "NYK", "OKC", "ORL", "PHI", "PHO", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"]
-	recordWinSharesForTeam(teams[1:])
+	allDataToJSON()
 	print "Time taken:", time.time()-start
