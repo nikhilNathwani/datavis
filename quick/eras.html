@@ -21,7 +21,7 @@
         <script type="text/javascript">
             //Width and height
             var w= 2500;
-            var h= 1200;
+            var h= 1300;
 			var margin=20;
 			var rectHeight= h/50;
 			var rad= rectHeight/3;
@@ -32,6 +32,7 @@
 			var playerTextPad= 5;
 			var togSpace= 10;
 			var togHeight= 4*(togRad+togPadY) + 60;
+			var togWidth= 30*(2*togRad+togSpace);
 			var toggleClicked= []; //used in keeping toggle circles highlighted
 			for(i=0;i<30;i++){
 				toggleClicked.push(0);
@@ -47,6 +48,31 @@
 			  
 			//load and display win share data
 			d3.json("eras.json", function(playerEras) {
+				
+				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CREDITS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+			
+				svg.append("text")
+					.attr("class","credits")
+					.text("coded & designed by: Nikhil Nathwani")
+					.attr("x",505)
+					.attr("y",h-60)
+					.attr("fill","#999999")
+					.style("text-anchor","middle")
+				svg.append("text")
+					.attr("class","credits")
+					.text("source: basketball-reference.com")
+					.attr("x",505)
+					.attr("y",h-40)
+					.attr("fill","#999999")
+					.style("text-anchor","middle")
+				svg.append("text")
+					.attr("class","credits")
+					.text("v1.0: Jul 2014")
+					.attr("x",505)
+					.attr("y",h-20)
+					.attr("fill","#999999")
+					.style("text-anchor","middle")
+					
 				
 				function switchTeam(ind) {
 					/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ REMOVING OLD DATA ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -260,7 +286,7 @@
 							.attr("class","toggle")
 							.attr("x",0)
 							.attr("y",togPadY)
-							.attr("width", 30*(2*togRad+togSpace))
+							.attr("width", togWidth)
 							.attr("height", togHeight);
 				
 				toggleButton= toggle.selectAll("g.toggleButton") //Add groups for each toggle button
