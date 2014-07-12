@@ -95,7 +95,7 @@ function setZoomText(dot,stats) {
     var seasonY= 0;
     var winShares= stats.winShares;
     var winSharePct= Math.round(stats.winSharePct*100)/100;
-    var allStats= [name,"Season:        ","Win Shares: "+winShares,"WS %: "+winSharePct]
+    var allStats= [name,"Season: ","Win Shares: "+winShares,"WS %: "+winSharePct]
     if('salary' in stats) {
         allStats.push("Salary: "+formatAsMoney(stats.salary))
         allStats.push("Salary %: "+Math.round(stats.salaryPct*100)/100)
@@ -118,7 +118,6 @@ function setZoomText(dot,stats) {
                 });
                         
     texts.selectAll("text.playerStat")
-        .attr("class","data")
         .data(allStats)
         .attr("x", function(d,i) {
             if(i==1){
@@ -134,7 +133,9 @@ function setZoomText(dot,stats) {
                 start= parseInt(d3.select(this.parentNode).attr("width"))/6;
                 y0= allStats.length==4 ? start : start + sizes[1];
                 yFinal= Math.sqrt(2)*parseInt(d3.select(this.parentNode).attr("width")/2);
-                if (i==1){seasonY= y0 + (i*(yFinal-y0))/(allStats.length-1);}
+                if (i==1){
+                    seasonY= y0 + (i*(yFinal-y0))/(allStats.length-1);
+                }
                 return y0 + (i*(yFinal-y0))/(allStats.length-1)
             }
         })
