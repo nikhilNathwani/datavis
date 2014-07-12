@@ -32,7 +32,7 @@
 			var playerTextPad= 5;
 			var togSpace= 10;
 			var togHeight= 4*(togRad+togPadY) + 60;
-			var togWidth= 30*(2*togRad+togSpace);
+			var togWidth= 15*(2*togRad+togSpace);
 			var toggleClicked= []; //used in keeping toggle circles highlighted
 			for(i=0;i<30;i++){
 				toggleClicked.push(0);
@@ -54,21 +54,21 @@
 				svg.append("text")
 					.attr("class","credits")
 					.text("coded & designed by: Nikhil Nathwani")
-					.attr("x",505)
+					.attr("x",togWidth/2)
 					.attr("y",h-60)
 					.attr("fill","#999999")
 					.style("text-anchor","middle")
 				svg.append("text")
 					.attr("class","credits")
 					.text("source: basketball-reference.com")
-					.attr("x",505)
+					.attr("x",togWidth/2)
 					.attr("y",h-40)
 					.attr("fill","#999999")
 					.style("text-anchor","middle")
 				svg.append("text")
 					.attr("class","credits")
 					.text("v1.0: Jul 2014")
-					.attr("x",505)
+					.attr("x",togWidth/2)
 					.attr("y",h-20)
 					.attr("fill","#999999")
 					.style("text-anchor","middle")
@@ -269,6 +269,7 @@
 				}
 				
 
+
 				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TOGGLE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 				//Unselect all toggles except that at index "except" (help is index 16)
 				function unSelectToggles(except) {
@@ -281,7 +282,7 @@
 						})
 				}
 
-				//create left bar of 2014 playoff teams
+				//create top bar of 2014 playoff teams
 				toggle= svg.append("svg")
 							.attr("class","toggle")
 							.attr("x",0)
@@ -336,7 +337,78 @@
 										toggleClicked[i]= 1;
 										switchTeam(i);
 									});
-
+					
+					
+						
+				/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ LEGEND ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+				legendX= togWidth+40;
+				legendY= togPadY+6;
+				legendWidth= 175;
+				legendHeight= 115;
+				legendPadX= 15;
+				legendPadY= 20;
+				legendTextPadX= 5;
+				legendTextPadY= 8;
+				legendTitlePadY= 25+legendPadY;
+				textColor= "#777777";
+				
+				//create top bar of 2014 playoff teams
+				legend= svg.append("svg")
+							.attr("class","legend")
+							.attr("x",legendX)
+							.attr("y",legendY)
+							.attr("width", legendWidth)
+							.attr("height", legendHeight)							
+				
+				legend.append("rect")
+						.attr("x", 0)
+						.attr("y", 0)
+						.attr("height", legendHeight)
+						.attr("width", legendWidth)
+						.style("stroke", textColor)
+						.style("fill", "none")
+						.style("stroke-width", 1)
+						.moveToFront();
+				
+				legend.append("text")
+					.attr("class","legend")
+					.attr("x",function(){return d3.select(this.parentNode).attr("width")/2})
+					.attr("y",legendPadY)
+					.attr("font-size",16)
+					.attr("text-anchor","middle")
+					.attr("dominant-baseline","middle")
+					.attr("fill",textColor)
+					.text("Key")
+				
+				legendColors= ["#daa530","#c0c0c0","#b87333"]
+				legendMessages= ["= Won NBA Finals", "= Lost NBA Finals", "= Lost Conf. Finals"]
+				
+				legend.selectAll("circle")
+						.data(legendColors)
+						.enter()
+						.append("circle")
+						.attr("class","legend")
+						.attr("r",rad)
+						.attr("fill", function(d){return d;})
+						.attr("cx", legendPadX+rad)
+						.attr("cy", function(d,i) {
+							return legendTitlePadY +(legendTextPadY+2*rad)*i;
+						})
+				
+				legend.selectAll("text.legendEntry")
+						.data(legendMessages)
+						.enter()
+						.append("text")
+						.attr("class","legendEntry")
+						.attr("fill", textColor)
+						.attr("font-size", 13)
+						.attr("dominant-baseline","middle")
+						.attr("x", legendPadX + 2*rad + legendTextPadX)
+						.attr("y", function(d,i) {
+							return legendTitlePadY + (legendTextPadY+2*rad)*i;
+						})
+						.text(function(d){return d;})
+	
 			});
         </script>
     </body>
