@@ -23,16 +23,16 @@
             var w= 2500;
             var h= 1300;
 			var margin=20;
-			var rectHeight= h/50;
+			var rectHeight= h/60;
 			var rad= rectHeight/3;
 			var togRad= 25;
 			var zoomRad= 120;
 			var togPadY= 5;
-			var togPadX= 60;
+			var togPadX= 30;
 			var playerTextPad= 5;
 			var togSpace= 10;
 			var togHeight= 4*(togRad+togPadY) + 60;
-			var togWidth= 15*(2*togRad+togSpace);
+			var togWidth= 15*(2*togRad+togSpace)+togRad;
 			var toggleClicked= []; //used in keeping toggle circles highlighted
 			for(i=0;i<30;i++){
 				toggleClicked.push(0);
@@ -91,7 +91,7 @@
 					eras= playerEras[ind].eras;
 					firstYear= eras[0].stats[0].year;
 					lastYear= 2014;
-					graphStartX= togPadX;//(2*togPadX + 15*(2*togRad+togSpace))/2-(150+3*rad+2*rad*(2014-firstYear+1))/2
+					graphStartX= Math.max(togPadX,(2*togPadX + 15*(2*togRad+togSpace))/2-(150+3*rad+2*rad*(2014-firstYear+1))/2)
 					numRects= 0;
 					confFinals= playerEras[ind].confFinal
 					finalsLoss= playerEras[ind].lossFinal
@@ -288,7 +288,8 @@
 							.attr("x",0)
 							.attr("y",togPadY)
 							.attr("width", togWidth)
-							.attr("height", togHeight);
+							.attr("height", togHeight)
+							.moveToFront();
 				
 				toggleButton= toggle.selectAll("g.toggleButton") //Add groups for each toggle button
 							.data(Object.keys(colors))
@@ -301,7 +302,7 @@
 								return togPadX + togRad + (i%15)*(2*togRad+togSpace);
 							})
 					.attr("cy", function(d,i){
-						return i<15 ? togPadY + togRad : 3*togPadY + 3*togRad
+						return i<15 ? togPadY + togRad : 2*togSpace + 3*togRad
 					})
 					.attr("r", togRad)
 					.attr("fill", function(d) {
@@ -314,7 +315,7 @@
 								return togPadX + togRad + (i%15)*(2*togRad+togSpace);
 							})
 					.attr("y", function(d,i){
-						return i<15 ? togPadY + togRad : 3*togPadY + 3*togRad
+						return i<15 ? togPadY + togRad : 2*togSpace + 3*togRad
 					})
 					.attr("font-size",togRad/2)
 					.attr("font-family","sans-serif")
@@ -368,7 +369,6 @@
 						.style("stroke", textColor)
 						.style("fill", "none")
 						.style("stroke-width", 1)
-						.moveToFront();
 				
 				legend.append("text")
 					.attr("class","legend")
